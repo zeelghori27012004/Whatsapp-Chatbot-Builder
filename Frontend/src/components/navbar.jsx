@@ -1,8 +1,9 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
@@ -16,36 +17,45 @@ export default function Navbar() {
           <Link to="/" className="text-xl font-bold text-blue-600">
             Bot Builder
           </Link>
-
-          {/* Nav links */}
-          <div className="space-x-6 hidden md:flex">
-            <Link
+          {/* Nav links and logout button */}
+          <div className="flex items-center space-x-6">
+            <NavLink
               to="/dashboard"
-              className="text-gray-600 hover:text-blue-600 transition"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-blue-600 font-semibold"
+                  : "text-gray-600 hover:text-blue-600 transition"
+              }
             >
               Dashboard
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
               to="/login"
-              className="text-gray-600 hover:text-blue-600 transition"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-blue-600 font-semibold"
+                  : "text-gray-600 hover:text-blue-600 transition"
+              }
             >
               Login
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
               to="/register"
-              className="text-gray-600 hover:text-blue-600 transition"
+              className={({ isActive }) =>
+                isActive
+                  ? "text-blue-600 font-semibold"
+                  : "text-gray-600 hover:text-blue-600 transition"
+              }
             >
               Register
-            </Link>
+            </NavLink>
             <button
               onClick={handleLogout}
-              className="text-red-500 hover:text-red-700 transition"
+              className="ml-4 bg-blue-600 hover:bg-blue-500 text-white font-medium py-1.5 px-4 rounded-md transition"
             >
-              Logout
+              Log out
             </button>
           </div>
-
-          {/* Mobile menu button (optional if you want to add later) */}
         </div>
       </div>
     </nav>
