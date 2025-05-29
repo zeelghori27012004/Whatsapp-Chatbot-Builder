@@ -1,9 +1,19 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/login";
+import Register from "./pages/register";
+import Navbar from "./components/navbar";
+// import Dashboard from "./pages/dashboard"; // If you have a dashboard page
+// import Navbar from "./components/Navbar"; // Optional: include if you added the Navbar
 
-function App() {
-  return <h1 className="text-red-100 font-extralight"> HELLO WORLD</h1>;
+export default function App() {
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </>
+  );
 }
-
-export default App;
