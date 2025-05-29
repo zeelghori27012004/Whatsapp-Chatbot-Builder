@@ -32,7 +32,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen min-w-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen min-w-screen flex items-center justify-center bg-gray-200 px-4">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
