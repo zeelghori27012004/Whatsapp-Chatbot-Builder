@@ -5,7 +5,7 @@ import generateToken from "../utils/generateToken.js";
 
 export const register = async (req, res) => {
   const { fullname, email, phoneNumber, password, isAdmin } = req.body;
-  if (!fullname || !email || !phoneNumber || !password || !isAdmin) {
+  if (!fullname || !email || !phoneNumber || !password) {
     return res.status(400).json({
       message: "Something is missing",
       success: false,
@@ -38,7 +38,7 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password, isAdmin } = req.body;
-  if (!email || !password || !isAdmin) {
+  if (!email || !password) {
     return res.status(400).json({
       message: "Something is missing",
       success: false,
