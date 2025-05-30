@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
 
@@ -10,8 +10,9 @@ export default function Register() {
     password: "",
     isAdmin: false,
   });
-
+  // const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -25,20 +26,37 @@ export default function Register() {
     e.preventDefault();
     try {
       const token = await register(form);
-      if (token) navigate("/dashboard");
+      if (token) {
+        window.dispatchEvent(new Event("tokenChange"));
+        navigate("/dashboard");
+      }
     } catch (error) {
       alert(error.message || "Registration failed");
     }
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setMessage("Logout first to Register a new User");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    }
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen min-w-screen flex items-center justify-center bg-gray-200 px-4 pt-10">
+    <div className="min-h-screen max-w-screen flex items-center justify-center bg-gray-200 overflow-x-hidden">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
       >
         <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
-
+        {error && (
+          <div className="mb-4 text-red-600 text-sm bg-red-100 p-2 rounded">
+            {error}
+          </div>
+        )}
         <label className="block mb-2 text-sm font-medium">Full Name</label>
         <input
           type="text"

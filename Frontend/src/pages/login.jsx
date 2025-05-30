@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
 
@@ -8,6 +8,7 @@ const Login = () => {
     password: "",
     isAdmin: false,
   });
+
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -25,14 +26,25 @@ const Login = () => {
     try {
       const token = await login(formData);
       localStorage.setItem("token", token);
+      window.dispatchEvent(new Event("tokenChange")); // Notify Navbar
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Login failed");
     }
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setError("You are already logged in.");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    }
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen min-w-screen flex items-center justify-center bg-gray-200 px-4">
+    <div className="min-h-screen max-w-screen flex items-center justify-center bg-gray-200 overflow-x-hidden">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
