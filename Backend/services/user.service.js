@@ -28,6 +28,24 @@ export const createUser = async ({
   return user;
 };
 
+export const loginUser = async ({ email, password, isAdmin }) => {
+  if (!email || !password) {
+    throw new Error("Something is missing");
+  }
+
+  const user = await userModel.findOne({ email }).select("+password");
+  if (!user) {
+    throw new Error("Invalid Credentials");
+  }
+
+  const isMatch = await user.isValidPassword(password);
+
+  if (!isMatch) {
+    throw new Error("Invalid Credentials");
+  }
+
+  return user;
+};
 // export const getAllUsers = async ({ userId }) => {
 //   const users = await userModel.find({
 //     _id: { $ne: userId },
