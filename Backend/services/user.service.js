@@ -50,9 +50,9 @@ export const loginUser = async ({ email, password, isAdmin }) => {
 
   return user;
 };
-// export const getAllUsers = async ({ userId }) => {
-//   const users = await userModel.find({
-//     _id: { $ne: userId },
-//   });
-//   return users;
-// };
+export const getAllUsers = async ({ userId }) => {
+  const users = await userModel.find({
+    _id: { $ne: userId },
+  });
+  return users;
+};
