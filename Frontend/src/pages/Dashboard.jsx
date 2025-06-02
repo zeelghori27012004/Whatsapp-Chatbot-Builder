@@ -1,12 +1,26 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { UserContext } from "../context/user.context";
+
 const Dashboard = () => {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
   return (
     <div className="bg-slate-300 max-w-screen min-h-screen text-black overflow-x-hidden">
       <div className="flex md:flex-1/2 lg:flex-2/3 gap-3 pt-5 px-5">
         <NavLink
           to="/mybots"
           className={({ isActive }) =>
-            isActive ? "text-blue-600 font-semibold" : "text-black hover:text-blue-600 transition"
+            isActive
+              ? "text-blue-600 font-semibold"
+              : "text-black hover:text-blue-600 transition"
           }
         >
           <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer">
