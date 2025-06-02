@@ -44,6 +44,10 @@ export const loginUser = async ({ email, password, isAdmin }) => {
     throw new Error("Invalid Credentials");
   }
 
+  if (isAdmin !== user.isAdmin) {
+    throw new Error("Account doesn't exist with current role.");
+  }
+
   return user;
 };
 // export const getAllUsers = async ({ userId }) => {

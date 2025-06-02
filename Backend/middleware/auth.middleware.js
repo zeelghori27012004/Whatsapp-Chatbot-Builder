@@ -1,21 +1,31 @@
 import jwt from "jsonwebtoken";
-import { User } from "../models/User.js";
+// import redisClient from "../services/redis.service.js";
 
 
-const auth = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
+export const authUser = async (req, res, next) => {
+    try {
+        const token = req.cookies.token || req.headers.authorization.split(' ')[ 1 ];
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user)
-      return res.status(403).json({ error: "Access Denied" });
-    req.user = user;
-    next();
-  } catch {
-    res.status(403).json({ error: "Invalid token" });
-  }
-};
+        if (!token) {
+            return res.status(401).send({ error: 'Unauthorized User' });
+        }
 
-export default auth;
+        // const isBlackListed = await redisClient.get(token);
+
+        if (isBlackListed) {
+
+            res.cookie('token', '');
+
+            return res.status(401).send({ error: 'Unauthorized User' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (error) {
+
+        console.log(error);
+
+        res.status(401).send({ error: 'Unauthorized User' });
+    }
+}
