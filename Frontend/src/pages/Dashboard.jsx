@@ -6,9 +6,7 @@ const Dashboard = () => {
         <NavLink
           to="/mybots"
           className={({ isActive }) =>
-            isActive
-              ? "text-blue-600 font-semibold"
-              : "text-black hover:text-blue-600 transition"
+            isActive ? "text-blue-600 font-semibold" : "text-black hover:text-blue-600 transition"
           }
         >
           <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer">

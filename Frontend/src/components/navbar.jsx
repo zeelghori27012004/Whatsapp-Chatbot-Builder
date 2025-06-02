@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import logo from "../assets/logo.png";
 export default function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -27,7 +27,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <Link to="/" className="text-xl font-bold text-blue-600">
-            Bot Builder
+            <img src={logo} className="w-25" />
           </Link>
           {/* Nav links and logout button */}
           <div className="flex items-center space-x-6">
