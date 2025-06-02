@@ -85,4 +85,5 @@ export const getAllUsersController = async (req, res) => {
 
     res.status(400).json({ error: err.message });
   }
+  
 };
