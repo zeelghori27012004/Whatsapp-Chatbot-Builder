@@ -12,3 +12,4 @@ router.post('/create',
     projectController.createProject
 )
 
+export default router;
