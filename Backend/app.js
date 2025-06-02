@@ -1,24 +1,25 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import morgan from 'morgan';
 import cors from 'cors';
-import connectDB from './config/db.js';
+import connectDB from './db/db.js'
 
-import authRoutes from './routes/authRoutes.js';
-import botRoutes from './routes/botRoutes.js';
+import authRoutes from './routes/user.routes.js';
+import botRoutes from './routes/project.routes.js';
 // import twilioRoutes from './routes/twilioRoutes.js';
 // import adminRoutes from './routes/adminRoutes.js';
-
-dotenv.config();
-const app = express();
 connectDB();
 
+const app = express();
+
+
 app.use(cors());
+app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bots', botRoutes);
 // app.use('/api/twilio', twilioRoutes);
 // app.use('/api/admin', adminRoutes);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+export default app;
