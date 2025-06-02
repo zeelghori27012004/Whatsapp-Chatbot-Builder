@@ -45,17 +45,10 @@ const Login = () => {
 
   return (
     <div className="min-h-screen max-w-screen flex items-center justify-center bg-gray-200 overflow-x-hidden">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
-      >
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
 
-        {error && (
-          <div className="mb-4 text-red-600 text-sm bg-red-100 p-2 rounded">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 text-red-600 text-sm bg-red-100 p-2 rounded">{error}</div>}
 
         <label className="block mb-2 text-sm font-medium">Email</label>
         <input

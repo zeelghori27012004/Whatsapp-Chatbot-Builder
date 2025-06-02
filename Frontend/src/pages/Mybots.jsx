@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  getBots,
-  createBot,
-  updateBot,
-  deleteBot,
-} from "../services/botService";
+import { getBots, createBot, updateBot, deleteBot } from "../services/botService";
 
 export default function MyBots() {
   const [bots, setBots] = useState([]);
@@ -37,9 +32,7 @@ export default function MyBots() {
     try {
       const data = await createBot({ name: newBotName, flow: {}, usage: 0 });
       setNewBotName("");
-      setBots((prev) =>
-        [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
-      );
+      setBots((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
     } catch (err) {
       alert(err.message);
     }
@@ -71,9 +64,7 @@ export default function MyBots() {
       await updateBot(id, { name: editingBotName });
       setBots((prev) =>
         prev
-          .map((bot) =>
-            bot._id === id ? { ...bot, name: editingBotName } : bot
-          )
+          .map((bot) => (bot._id === id ? { ...bot, name: editingBotName } : bot))
           .sort((a, b) => a.name.localeCompare(b.name))
       );
       cancelEditing();
