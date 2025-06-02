@@ -1,17 +1,36 @@
-import React, { useEffect, useState } from "react";
-import { getBots, createBot, updateBot, deleteBot } from "../services/botService";
+import React, { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  getBots,
+  createBot,
+  updateBot,
+  deleteBot,
+} from "../services/botService";
+import { UserContext } from "../context/user.context";
 
 export default function MyBots() {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
   const [bots, setBots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [newBotName, setNewBotName] = useState("");
   const [editingBotId, setEditingBotId] = useState(null);
   const [editingBotName, setEditingBotName] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
+    if (!user) {
+      setShowPopup(true);
+      setTimeout(() => {
+        setShowPopup(false);
+        navigate("/login");
+      }, 1800);
+      return;
+    }
     fetchBots();
-  }, []);
+    // eslint-disable-next-line
+  }, [user, navigate]);
 
   const fetchBots = async () => {
     try {
@@ -32,7 +51,9 @@ export default function MyBots() {
     try {
       const data = await createBot({ name: newBotName, flow: {}, usage: 0 });
       setNewBotName("");
-      setBots((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      setBots((prev) =>
+        [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
+      );
     } catch (err) {
       alert(err.message);
     }
@@ -64,7 +85,9 @@ export default function MyBots() {
       await updateBot(id, { name: editingBotName });
       setBots((prev) =>
         prev
-          .map((bot) => (bot._id === id ? { ...bot, name: editingBotName } : bot))
+          .map((bot) =>
+            bot._id === id ? { ...bot, name: editingBotName } : bot
+          )
           .sort((a, b) => a.name.localeCompare(b.name))
       );
       cancelEditing();
@@ -75,6 +98,14 @@ export default function MyBots() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 mt-24">
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[10px] z-50">
+          <div className="bg-white p-6 rounded shadow-lg text-center">
+            <h2 className="text-lg font-semibold mb-2">Sign In Required</h2>
+            <p className="text-gray-700">Please sign in to access your bots.</p>
+          </div>
+        </div>
+      )}
       <h1 className="text-3xl font-bold mb-6">My Bots</h1>
 
       <div className="mb-6 flex gap-2">

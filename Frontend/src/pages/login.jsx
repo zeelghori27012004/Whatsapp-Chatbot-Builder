@@ -1,6 +1,7 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
+import { UserContext } from "../context/user.context";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,8 +10,25 @@ const Login = () => {
     isAdmin: false,
   });
 
+  const { setUser, user } = useContext(UserContext);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user context is already set, redirect immediately
+    if (user) {
+      navigate("/dashboard");
+      return;
+    }
+    // Or check for token in localStorage as fallback
+    const token = localStorage.getItem("token");
+    if (token) {
+      setError("You are already logged in.");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
+    }
+  }, [navigate, user]);
 
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
@@ -26,6 +44,7 @@ const Login = () => {
     try {
       const token = await login(formData);
       localStorage.setItem("token", token);
+      setUser({ email: formData.email, isAdmin: formData.isAdmin }); // Set user context
       window.dispatchEvent(new Event("tokenChange")); // Notify Navbar
       navigate("/dashboard");
     } catch (err) {
@@ -33,22 +52,19 @@ const Login = () => {
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setError("You are already logged in.");
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2000);
-    }
-  }, [navigate]);
-
   return (
     <div className="min-h-screen max-w-screen flex items-center justify-center bg-gray-200 overflow-x-hidden">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
+      >
         <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
 
-        {error && <div className="mb-4 text-red-600 text-sm bg-red-100 p-2 rounded">{error}</div>}
+        {error && (
+          <div className="mb-4 text-red-600 text-sm text-center bg-red-100 p-2 rounded">
+            {error}
+          </div>
+        )}
 
         <label className="block mb-2 text-sm font-medium">Email</label>
         <input
