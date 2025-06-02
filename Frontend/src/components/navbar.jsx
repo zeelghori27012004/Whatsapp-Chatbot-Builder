@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
+import { UserContext } from "../context/user.context";
+
 export default function Navbar() {
   const navigate = useNavigate();
+  const { user, setUser } = useContext(UserContext);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    setUser(null); // Clear user context
     window.dispatchEvent(new Event("tokenChange"));
     navigate("/login");
   };
@@ -20,6 +23,10 @@ export default function Navbar() {
     window.addEventListener("tokenChange", handleStorageChange);
     return () => window.removeEventListener("tokenChange", handleStorageChange);
   }, []);
+
+  useEffect(() => {
+    setIsLoggedIn(!!user);
+  }, [user]);
 
   return (
     <nav className="bg-white shadow-md w-full z-50 max-w-screen overflow-x-hidden">
