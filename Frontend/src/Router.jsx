@@ -6,8 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import Mybots from "./pages/Mybots";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import NotFound404 from "./pages/NotFound404"; // Match the file name with component name
 import BotFlowCanvas from "./pages/Createbot";
+import PageNotFound404 from "./pages/PageNotFound404";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +29,7 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <NotFound404 />,
+    element: <PageNotFound404 />,
   },
   {
     path: "/createbot",
