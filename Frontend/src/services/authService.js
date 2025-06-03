@@ -1,5 +1,5 @@
 export const login = async (formData) => {
-  const response = await fetch("http://localhost:5000/api/auth/login", {
+  const response = await fetch("http://localhost:3000/users/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
@@ -21,7 +21,7 @@ export const login = async (formData) => {
 };
 
 export const register = async (formData) => {
-  const response = await fetch("http://localhost:5000/api/auth/register", {
+  const response = await fetch("http://localhost:3000/users/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
