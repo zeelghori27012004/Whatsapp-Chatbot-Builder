@@ -30,4 +30,10 @@ router.get('/get-project/:projectId',
     projectController.getProjectById
 )
 
+router.delete('/delete/:projectId',
+    authMiddleWare.authUser,
+    projectController.deleteProject
+);
+
+
 export default router;

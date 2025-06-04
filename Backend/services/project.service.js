@@ -112,3 +112,34 @@ export const getProjectById = async ({ projectId }) => {
 
     return project;
 }
+
+
+export const deleteProjectById = async ({ projectId, userId }) => {
+    if (!projectId) {
+        throw new Error("projectId is required");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        throw new Error("Invalid projectId");
+    }
+
+    if (!userId) {
+        throw new Error("userId is required");
+    }
+
+    const project = await projectModel.findOne({ _id: projectId });
+
+    if (!project) {
+        throw new Error("Project not found");
+    }
+
+    // Optional: Only allow deletion if the user is part of the project
+    const isUserInProject = project.users.includes(userId);
+    if (!isUserInProject) {
+        throw new Error("User does not have permission to delete this project");
+    }
+
+    await projectModel.deleteOne({ _id: projectId });
+
+    return { message: "Project deleted successfully" };
+}
