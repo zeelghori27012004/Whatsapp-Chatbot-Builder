@@ -158,3 +158,35 @@ export const updateProjectFlow = async ({ projectId, fileTree }) => {
   project.fileTree = fileTree;
   return await project.save();
 };
+
+
+export const updateProjectName = async ({ projectId, name, userId }) => {
+  if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new Error("Invalid projectId");
+  }
+
+  if (!name || typeof name !== 'string') {
+    throw new Error("Project name must be a valid string");
+  }
+
+  const project = await projectModel.findOne({ _id: projectId });
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  if (!project.users.includes(userId)) {
+    throw new Error("User does not have permission to update this project");
+  }
+
+  project.name = name.toLowerCase().trim();
+
+  try {
+    return await project.save();
+  } catch (err) {
+    if (err.code === 11000) {
+      throw new Error("Project name already exists");
+    }
+    throw err;
+  }
+};

@@ -45,6 +45,13 @@ router.patch(
   projectController.updateFlow
 );
 
+router.patch(
+  '/update-name/:projectId',
+  authMiddleWare.authUser,
+  body('name').isString().withMessage('New name is required'),
+  projectController.updateProjectName
+);
+
 
 
 
