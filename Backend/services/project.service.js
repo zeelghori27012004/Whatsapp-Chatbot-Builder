@@ -143,3 +143,18 @@ export const deleteProjectById = async ({ projectId, userId }) => {
 
     return { message: "Project deleted successfully" };
 }
+
+
+export const updateProjectFlow = async ({ projectId, fileTree }) => {
+  if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new Error("Invalid projectId");
+  }
+
+  const project = await projectModel.findById(projectId);
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  project.fileTree = fileTree;
+  return await project.save();
+};

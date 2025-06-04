@@ -36,4 +36,16 @@ router.delete('/delete/:projectId',
 );
 
 
+router.patch(
+  '/update-flow/:projectId',
+  authMiddleWare.authUser,
+  body('fileTree').isObject().withMessage('fileTree must be an object'),
+  body('fileTree.nodes').isArray().withMessage('fileTree.nodes must be an array'),
+  body('fileTree.edges').isArray().withMessage('fileTree.edges must be an array'),
+  projectController.updateFlow
+);
+
+
+
+
 export default router;

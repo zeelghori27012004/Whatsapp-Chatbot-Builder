@@ -122,3 +122,24 @@ export const deleteProject = async (req, res) => {
         return res.status(400).json({ error: err.message });
     }
 };
+
+
+export const updateFlow = async (req, res) => {
+  const { projectId } = req.params;
+  const { fileTree } = req.body;
+
+  try {
+    const updatedProject = await projectService.updateProjectFlow({
+      projectId,
+      fileTree,
+    });
+
+    return res.status(200).json({
+      message: 'Flow updated successfully',
+      project: updatedProject,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ error: error.message });
+  }
+};
