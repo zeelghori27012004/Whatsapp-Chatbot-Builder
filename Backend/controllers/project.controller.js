@@ -103,3 +103,22 @@ export const getProjectById = async (req, res) => {
     }
 
 }
+
+
+export const deleteProject = async (req, res) => {
+    const { projectId } = req.params;
+
+    try {
+        const loggedInUser = await userModel.findOne({ email: req.user.email });
+
+        const result = await projectService.deleteProjectById({
+            projectId,
+            userId: loggedInUser._id
+        });
+
+        return res.status(200).json(result);
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({ error: err.message });
+    }
+};
