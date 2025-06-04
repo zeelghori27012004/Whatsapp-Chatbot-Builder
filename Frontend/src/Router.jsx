@@ -1,22 +1,52 @@
-// router.js
 import { createBrowserRouter } from "react-router-dom";
 
 import RootLayout from "./layouts/RootLayout";
 import Dashboard from "./pages/Dashboard";
+import PageNotFound404 from "./components/PageNotFound404";
+import Login from "./pages/login";
+import Register from "./pages/register";
+import Projects from "./pages/Projects";
 import Mybots from "./pages/Mybots";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import BotFlowCanvas from "./pages/Createbot";
-import PageNotFound404 from "./pages/PageNotFound404";
+import PrivateRoute from "./components/Protectedroute";
+import CreateBot from "./components/Createbot";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     children: [
-      { index: true, element: <Dashboard /> },
-      { path: "dashboard", element: <Dashboard /> },
-      { path: "mybots", element: <Mybots /> },
+      {
+        index: true,
+        element: (
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "dashboard",
+        element: (
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "projects",
+        element: (
+          <PrivateRoute>
+            <Projects />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "projects/:projectId",
+        element: (
+          <PrivateRoute>
+            <CreateBot />
+          </PrivateRoute>
+        ),
+      },
     ],
   },
   {
@@ -26,14 +56,6 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
-  },
-  {
-    path: "*",
-    element: <PageNotFound404 />,
-  },
-  {
-    path: "/createbot",
-    element: <BotFlowCanvas />,
   },
 ]);
 

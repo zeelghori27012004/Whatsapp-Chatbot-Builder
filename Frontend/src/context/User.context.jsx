@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-// Create the context
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
@@ -8,14 +7,19 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token && !user) {
-      // Optionally decode token or fetch user info here
-      setUser({ token }); // Replace with actual user info if available
+    if (token) {
+      // Optionally decode token or fetch user profile here
+      setUser({ token });
     }
-  }, [user]);
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, logout }}>
       {children}
     </UserContext.Provider>
   );

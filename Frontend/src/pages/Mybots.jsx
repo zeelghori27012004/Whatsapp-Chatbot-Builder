@@ -1,186 +1,43 @@
-import React, { useEffect, useState, useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getBots,
-  createBot,
-  updateBot,
-  deleteBot,
-} from "../services/botService";
-import { UserContext } from "../context/user.context";
+import { PlusCircle } from "lucide-react";
 
-export default function MyBots() {
-  const { user } = useContext(UserContext);
+const Mybots = () => {
   const navigate = useNavigate();
-  const [bots, setBots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [newBotName, setNewBotName] = useState("");
-  const [editingBotId, setEditingBotId] = useState(null);
-  const [editingBotName, setEditingBotName] = useState("");
-  const [showPopup, setShowPopup] = useState(false);
 
-  useEffect(() => {
-    if (!user) {
-      setShowPopup(true);
-      setTimeout(() => {
-        setShowPopup(false);
-        navigate("/login");
-      }, 1800);
-      return;
-    }
-    fetchBots();
-    // eslint-disable-next-line
-  }, [user, navigate]);
-
-  const fetchBots = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const data = await getBots();
-      const sortedBots = data.sort((a, b) => a.name.localeCompare(b.name));
-      setBots(sortedBots);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCreateBot = async () => {
-    if (!newBotName.trim()) return;
-    try {
-      const data = await createBot({ name: newBotName, flow: {}, usage: 0 });
-      setNewBotName("");
-      setBots((prev) =>
-        [...prev, data].sort((a, b) => a.name.localeCompare(b.name))
-      );
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const handleDeleteBot = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this bot?")) return;
-    try {
-      await deleteBot(id);
-      setBots((prev) => prev.filter((bot) => bot._id !== id));
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const startEditing = (id, name) => {
-    setEditingBotId(id);
-    setEditingBotName(name);
-  };
-
-  const cancelEditing = () => {
-    setEditingBotId(null);
-    setEditingBotName("");
-  };
-
-  const saveEditing = async (id) => {
-    if (!editingBotName.trim()) return alert("Bot name cannot be empty");
-    try {
-      await updateBot(id, { name: editingBotName });
-      setBots((prev) =>
-        prev
-          .map((bot) =>
-            bot._id === id ? { ...bot, name: editingBotName } : bot
-          )
-          .sort((a, b) => a.name.localeCompare(b.name))
-      );
-      cancelEditing();
-    } catch (err) {
-      alert(err.message);
-    }
+  const handleCreateFlow = () => {
+    navigate("/temporaryaddress"); // Adjust this route based on your routing setup
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 mt-24">
-      {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-[10px] z-50">
-          <div className="bg-white p-6 rounded shadow-lg text-center">
-            <h2 className="text-lg font-semibold mb-2">Sign In Required</h2>
-            <p className="text-gray-700">Please sign in to access your bots.</p>
-          </div>
-        </div>
-      )}
-      <h1 className="text-3xl font-bold mb-6">My Bots</h1>
-
-      <div className="mb-6 flex gap-2">
-        <input
-          type="text"
-          placeholder="New bot name"
-          value={newBotName}
-          onChange={(e) => setNewBotName(e.target.value)}
-          className="flex-grow px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
-        />
+    <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="flex items-center justify-between mb-10">
+        <h1 className="text-3xl font-bold text-gray-800">My Bots</h1>
         <button
-          onClick={handleCreateBot}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          onClick={handleCreateFlow}
+          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition"
         >
-          Create Bot
+          <PlusCircle size={20} />
+          Create Bot Flow
         </button>
       </div>
 
-      {loading ? (
-        <p>Loading bots...</p>
-      ) : error ? (
-        <p className="text-red-600">{error}</p>
-      ) : bots.length === 0 ? (
-        <p>No bots found. Create one above!</p>
-      ) : (
-        <ul className="space-y-4">
-          {bots.map((bot) => (
-            <li
-              key={bot._id}
-              className="flex items-center justify-between border p-4 rounded shadow"
-            >
-              {editingBotId === bot._id ? (
-                <>
-                  <input
-                    type="text"
-                    value={editingBotName}
-                    onChange={(e) => setEditingBotName(e.target.value)}
-                    className="flex-grow px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300 mr-4"
-                  />
-                  <button
-                    onClick={() => saveEditing(bot._id)}
-                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mr-2"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={cancelEditing}
-                    className="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span className="flex-grow font-semibold">{bot.name}</span>
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => startEditing(bot._id, bot.name)}
-                      className="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteBot(bot._id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="bg-gray-50 p-10 border border-dashed border-gray-300 rounded-xl text-center shadow-inner">
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">
+          No Bots Yet
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Start by creating a chatbot using our drag-and-drop flow builder.
+        </p>
+        <button
+          onClick={handleCreateFlow}
+          className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition"
+        >
+          Create Your First Bot
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default Mybots;
