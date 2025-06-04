@@ -197,3 +197,13 @@ export const searchProjectsByName = async ({ name, userId }) => {
 
   return projects;
 };
+
+export const removeUserFromProject = async ({ projectId, userToRemove, requestedBy }) => {
+  const project = await projectModel.findOne({ _id: projectId });
+
+  if (!project) throw new Error("Project not found");
+  if (!project.users.includes(requestedBy)) throw new Error("Not authorized");
+
+  project.users = project.users.filter(u => u.toString() !== userToRemove);
+  return await project.save();
+};

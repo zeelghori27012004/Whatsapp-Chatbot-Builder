@@ -178,3 +178,20 @@ export const searchProjectsByName = async (req, res) => {
     return res.status(400).json({ error: err.message });
   }
 };
+
+export const removeUserFromProject = async (req, res) => {
+  const { projectId, userToRemove } = req.body;
+  try {
+    const currentUser = await userModel.findOne({ email: req.user.email });
+
+    const result = await projectService.removeUserFromProject({
+      projectId,
+      userToRemove,
+      requestedBy: currentUser._id,
+    });
+
+    res.status(200).json({ project: result });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
