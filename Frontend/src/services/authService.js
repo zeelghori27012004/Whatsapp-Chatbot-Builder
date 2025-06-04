@@ -5,11 +5,16 @@ export const login = async (formData) => {
     body: JSON.stringify(formData),
   });
 
-  const data = await response.json();
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(text || "Login failed");
+  }
 
   if (!response.ok) {
-    // Throw the error message sent from backend or generic
-    throw new Error(data.message || "Login failed");
+    throw new Error((data && data.message) || "Login failed");
   }
 
   if (!data.token) {
@@ -27,10 +32,16 @@ export const register = async (formData) => {
     body: JSON.stringify(formData),
   });
 
-  const data = await response.json();
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(text || "Registration failed");
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || "Registration failed");
+    throw new Error((data && data.message) || "Registration failed");
   }
 
   if (!data.token) {
