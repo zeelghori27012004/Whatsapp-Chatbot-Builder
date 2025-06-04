@@ -1,32 +1,23 @@
 import projectModel from '../models/project.model.js';
 import mongoose from 'mongoose';
 
-export const createProject = async ({
-    name, userId
-}) => {
-    if (!name) {
-        throw new Error('Name is required')
-    }
-    if (!userId) {
-        throw new Error('UserId is required')
-    }
+export const createProject = async ({ name, userId, fileTree }) => {
+  if (!name) throw new Error('Name is required');
+  if (!userId) throw new Error('UserId is required');
 
-    let project;
-    try {
-        project = await projectModel.create({
-            name,
-            users: [ userId ]
-        });
-    } catch (error) {
-        if (error.code === 11000) {
-            throw new Error('Project name already exists');
-        }
-        throw error;
-    }
-
+  try {
+    const project = await projectModel.create({
+      name,
+      users: [userId],
+      ...(fileTree && { fileTree })
+    });
     return project;
+  } catch (error) {
+    if (error.code === 11000) throw new Error('Project name already exists');
+    throw error;
+  }
+};
 
-}
 
 export const getAllProjectByUserId = async ({ userId }) => {
     if (!userId) {

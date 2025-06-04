@@ -6,11 +6,13 @@ import * as authMiddleWare from '../middleware/auth.middleware.js';
 const router = Router();
 
 
-router.post('/create',
-    authMiddleWare.authUser,
-    body('name').isString().withMessage('Name is required'),
-    projectController.createProject
-)
+router.post(
+  '/create',
+  authMiddleWare.authUser,
+  body('name').isString().withMessage('Name is required'),
+  body('fileTree').optional().isObject().withMessage('fileTree must be an object'),
+  projectController.createProject
+);
 
 router.get('/all',
     authMiddleWare.authUser,
