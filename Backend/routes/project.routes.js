@@ -54,6 +54,11 @@ router.patch(
   projectController.updateProjectName
 );
 
+router.get(
+  '/search',
+  authMiddleWare.authUser,
+  projectController.searchProjectsByName
+);
 
 
 

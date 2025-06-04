@@ -181,3 +181,19 @@ export const updateProjectName = async ({ projectId, name, userId }) => {
     throw err;
   }
 };
+
+
+export const searchProjectsByName = async ({ name, userId }) => {
+  if (!name || !userId) {
+    throw new Error("Name and userId are required");
+  }
+
+  const regex = new RegExp(name, 'i'); // case-insensitive partial match
+
+  const projects = await projectModel.find({
+    name: { $regex: regex },
+    users: userId
+  });
+
+  return projects;
+};
