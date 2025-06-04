@@ -60,6 +60,16 @@ router.get(
   projectController.searchProjectsByName
 );
 
+router.patch(
+  '/remove-user',
+  authMiddleWare.authUser,
+  body('projectId').isString(),
+  body('userToRemove').isString(),
+  projectController.removeUserFromProject
+);
+
+
+
 
 
 export default router;
