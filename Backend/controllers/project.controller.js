@@ -143,3 +143,32 @@ export const updateFlow = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 };
+
+
+export const updateProjectName = async (req, res) => {
+  const { projectId } = req.params;
+  const { name } = req.body;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const loggedInUser = await userModel.findOne({ email: req.user.email });
+
+    const updatedProject = await projectService.updateProjectName({
+      projectId,
+      name,
+      userId: loggedInUser._id
+    });
+
+    return res.status(200).json({
+      message: "Project name updated successfully",
+      project: updatedProject
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ error: error.message });
+  }
+};
