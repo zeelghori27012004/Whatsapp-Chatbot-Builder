@@ -1,32 +1,23 @@
 import projectModel from '../models/project.model.js';
 import mongoose from 'mongoose';
 
-export const createProject = async ({
-    name, userId
-}) => {
-    if (!name) {
-        throw new Error('Name is required')
-    }
-    if (!userId) {
-        throw new Error('UserId is required')
-    }
+export const createProject = async ({ name, userId, fileTree }) => {
+  if (!name) throw new Error('Name is required');
+  if (!userId) throw new Error('UserId is required');
 
-    let project;
-    try {
-        project = await projectModel.create({
-            name,
-            users: [ userId ]
-        });
-    } catch (error) {
-        if (error.code === 11000) {
-            throw new Error('Project name already exists');
-        }
-        throw error;
-    }
-
+  try {
+    const project = await projectModel.create({
+      name,
+      users: [userId],
+      ...(fileTree && { fileTree })
+    });
     return project;
+  } catch (error) {
+    if (error.code === 11000) throw new Error('Project name already exists');
+    throw error;
+  }
+};
 
-}
 
 export const getAllProjectByUserId = async ({ userId }) => {
     if (!userId) {
@@ -143,3 +134,76 @@ export const deleteProjectById = async ({ projectId, userId }) => {
 
     return { message: "Project deleted successfully" };
 }
+
+
+export const updateProjectFlow = async ({ projectId, fileTree }) => {
+  if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new Error("Invalid projectId");
+  }
+
+  const project = await projectModel.findById(projectId);
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  project.fileTree = fileTree;
+  return await project.save();
+};
+
+
+export const updateProjectName = async ({ projectId, name, userId }) => {
+  if (!projectId || !mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new Error("Invalid projectId");
+  }
+
+  if (!name || typeof name !== 'string') {
+    throw new Error("Project name must be a valid string");
+  }
+
+  const project = await projectModel.findOne({ _id: projectId });
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  if (!project.users.includes(userId)) {
+    throw new Error("User does not have permission to update this project");
+  }
+
+  project.name = name.toLowerCase().trim();
+
+  try {
+    return await project.save();
+  } catch (err) {
+    if (err.code === 11000) {
+      throw new Error("Project name already exists");
+    }
+    throw err;
+  }
+};
+
+
+export const searchProjectsByName = async ({ name, userId }) => {
+  if (!name || !userId) {
+    throw new Error("Name and userId are required");
+  }
+
+  const regex = new RegExp(name, 'i'); // case-insensitive partial match
+
+  const projects = await projectModel.find({
+    name: { $regex: regex },
+    users: userId
+  });
+
+  return projects;
+};
+
+export const removeUserFromProject = async ({ projectId, userToRemove, requestedBy }) => {
+  const project = await projectModel.findOne({ _id: projectId });
+
+  if (!project) throw new Error("Project not found");
+  if (!project.users.includes(requestedBy)) throw new Error("Not authorized");
+
+  project.users = project.users.filter(u => u.toString() !== userToRemove);
+  return await project.save();
+};
