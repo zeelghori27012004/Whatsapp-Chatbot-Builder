@@ -1,15 +1,20 @@
 export const login = async (formData) => {
-  const response = await fetch("http://localhost:5000/api/auth/login", {
+  const response = await fetch("http://localhost:3000/users/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
   });
 
-  const data = await response.json();
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(text || "Login failed");
+  }
 
   if (!response.ok) {
-    // Throw the error message sent from backend or generic
-    throw new Error(data.message || "Login failed");
+    throw new Error((data && data.message) || "Login failed");
   }
 
   if (!data.token) {
@@ -21,16 +26,22 @@ export const login = async (formData) => {
 };
 
 export const register = async (formData) => {
-  const response = await fetch("http://localhost:5000/api/auth/register", {
+  const response = await fetch("http://localhost:3000/users/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
   });
 
-  const data = await response.json();
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(text || "Registration failed");
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || "Registration failed");
+    throw new Error((data && data.message) || "Registration failed");
   }
 
   if (!data.token) {

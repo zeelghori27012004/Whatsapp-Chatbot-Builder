@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { UserContext } from "../context/user.context";
@@ -6,37 +6,22 @@ import { UserContext } from "../context/user.context";
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const isLoggedIn = !!user;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    setUser(null); // Clear user context
-    window.dispatchEvent(new Event("tokenChange"));
+    setUser(null);
     navigate("/login");
   };
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
-    };
-
-    window.addEventListener("tokenChange", handleStorageChange);
-    return () => window.removeEventListener("tokenChange", handleStorageChange);
-  }, []);
-
-  useEffect(() => {
-    setIsLoggedIn(!!user);
-  }, [user]);
 
   return (
     <nav className="bg-white shadow-md w-full z-50 max-w-screen overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
-          {/* Logo */}
           <Link to="/" className="text-xl font-bold text-blue-600">
             <img src={logo} className="w-25" />
           </Link>
-          {/* Nav links and logout button */}
+
           <div className="flex items-center space-x-6">
             {isLoggedIn && (
               <NavLink
@@ -50,7 +35,7 @@ export default function Navbar() {
                 Dashboard
               </NavLink>
             )}
-            {!isLoggedIn && (
+            {/* {!isLoggedIn && (
               <>
                 <NavLink
                   to="/login"
@@ -73,7 +58,7 @@ export default function Navbar() {
                   Register
                 </NavLink>
               </>
-            )}
+            )} */}
             {isLoggedIn && (
               <button
                 onClick={handleLogout}

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../context/user.context";
 
-export default function NotFound404() {
+export default function PageNotFound404() {
   const { user } = useContext(UserContext);
 
   return (
