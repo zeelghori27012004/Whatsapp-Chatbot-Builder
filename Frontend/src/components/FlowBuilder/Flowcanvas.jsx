@@ -7,23 +7,9 @@ import {
   addEdge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import FirstVisit from "./Nodes/TriggerNodes/Firstvisit";
 import { useCallback, useState } from "react";
-import VisitorReturnstoSite from "./Nodes/TriggerNodes/Visitorreturnstosite";
-import VisitorClicksOnChatIcon from "./Nodes/TriggerNodes/Visitorclicksonchaticon";
-import SendaMessage from "./Nodes/ActionNodes/Sendamessage";
-import AskaQuestion from "./Nodes/ActionNodes/Askaquestion";
-import ReturningVisitor from "./Nodes/ConditionNodes/Returningvisitor";
-import CustomEdge from "./Edges/customeEdge";
-
-const nodeTypes = {
-  testingTrigger: FirstVisit,
-  testingTrigger2: VisitorReturnstoSite,
-  testingTrigger3: VisitorClicksOnChatIcon,
-  testingTrigger4: SendaMessage,
-  testingTrigger5: AskaQuestion,
-  testingTrigger6: ReturningVisitor,
-};
+import CustomEdge from "../Edges/Customedge";
+import nodeTypes from "../Nodes/NodeTypes";
 
 const edgeTypes = {
   testingEdge: CustomEdge,
@@ -31,8 +17,8 @@ const edgeTypes = {
 
 const triggerNodes = [
   {
-    id: "trigger-1",
-    type: "testingTrigger",
+    id: "1",
+    type: "FirstVisitTrigger",
     position: { x: 100, y: 100 },
     data: { data: { label: "Trigger: First Visit" } },
   },
@@ -41,8 +27,8 @@ const triggerNodes = [
 // Initial condition nodes
 const conditionNodes = [
   {
-    id: "condition-1",
-    type: "testingTrigger6",
+    id: "2",
+    type: "ReturningVisitorCondition",
     position: { x: 300, y: 250 },
     data: { label: "Condition: User is New" },
   },
@@ -51,8 +37,8 @@ const conditionNodes = [
 // Initial action nodes
 const actionNodes = [
   {
-    id: "action-1",
-    type: "testingTrigger4",
+    id: "3",
+    type: "AskaQuestionAction",
     position: { x: 500, y: 100 },
     data: { label: "Action: Send Welcome Message" },
   },
@@ -65,21 +51,21 @@ const initialNodes = [...triggerNodes, ...conditionNodes, ...actionNodes];
 const initialEdges = [
   {
     id: "1-2",
-    source: "trigger-1",
-    target: "condition-1",
+    source: "1",
+    target: "2",
     label: "Trigger → Condition",
     type: "testingEdge",
   },
   {
     id: "2-3",
-    source: "condition-1",
-    target: "action-1",
+    source: "2",
+    target: "3",
     label: "Condition → Action",
     type: "testingEdge",
   },
 ];
 
-function CreateFlow() {
+function FlowCanvas() {
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
 
@@ -100,7 +86,7 @@ function CreateFlow() {
   );
 
   return (
-    <div className="h-[91vh] w-[100vw] bg-slate-300">
+    <div className="h-[100vh] w-[90vw] bg-slate-300">
       <ReactFlow
         nodes={nodes}
         nodeTypes={nodeTypes}
@@ -118,4 +104,4 @@ function CreateFlow() {
   );
 }
 
-export default CreateFlow;
+export default FlowCanvas;
