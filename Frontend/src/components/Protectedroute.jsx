@@ -1,11 +1,14 @@
-// components/PrivateRoute.jsx
-import { Navigate } from "react-router-dom";
-import { useContext } from "react";
-import { UserContext } from "../context/user.context";
+import { Navigate, useLocation } from "react-router-dom";
 
 const PrivateRoute = ({ children }) => {
-  const { user } = useContext(UserContext); // ✅ Correct usage
-  return user ? children : <Navigate to="/login" replace />;
+  const isAuthenticated = localStorage.getItem("token"); // or your method
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
 };
 
 export default PrivateRoute;
