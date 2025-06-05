@@ -6,10 +6,10 @@ import PageNotFound404 from "./components/PageNotFound404";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Projects from "./pages/Projects";
-// import Mybots from "./pages/Mybots";
 import PrivateRoute from "./components/Protectedroute";
-// import CreateBot from "./components/Createbot";
-import Createflow from "./components/Createflow";
+
+// import FlowCanvas from "./components/Flowcanvas";
+import FlowBuilder from "./components/FlowBuilder/Flowbuilder";
 
 const router = createBrowserRouter([
   {
@@ -40,14 +40,6 @@ const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      {
-        path: "projects/:id",
-        element: (
-          <PrivateRoute>
-            <Createflow />
-          </PrivateRoute>
-        ),
-      },
     ],
   },
   {
@@ -61,6 +53,14 @@ const router = createBrowserRouter([
   {
     path: "*",
     element: <PageNotFound404 />,
+  },
+  {
+    path: "projects/:id",
+    element: (
+      <PrivateRoute>
+        <FlowBuilder />
+      </PrivateRoute>
+    ),
   },
 ]);
 
