@@ -6,9 +6,10 @@ import PageNotFound404 from "./components/PageNotFound404";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Projects from "./pages/Projects";
-import Mybots from "./pages/Mybots";
+// import Mybots from "./pages/Mybots";
 import PrivateRoute from "./components/Protectedroute";
-import CreateBot from "./components/Createbot";
+// import CreateBot from "./components/Createbot";
+import Createflow from "./components/Createflow";
 
 const router = createBrowserRouter([
   {
@@ -40,10 +41,10 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "projects/:projectId",
+        path: "projects/:id",
         element: (
           <PrivateRoute>
-            <CreateBot />
+            <Createflow />
           </PrivateRoute>
         ),
       },
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "*",
+    element: <PageNotFound404 />,
   },
 ]);
 

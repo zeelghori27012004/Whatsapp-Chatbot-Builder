@@ -58,23 +58,37 @@ export const getProjectById = async (projectId) => {
   }
 };
 
-// export const deleteProject = async (projectId) => {
-//   const response = await axios.delete(
-//     `${API_BASE_URL}/${projectId}`,
-//     getAuthHeaders()
-//   );
-//   return response.data;
-// };
+export const deleteProject = async (projectId) => {
+  const token = localStorage.getItem("token"); // if you use token auth
+  const res = await fetch(
+    `http://localhost:3000/projects/delete/${projectId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // if your backend requires auth
+      },
+    }
+  );
 
-// export const updateProject = async (projectId, projectData) => {
-//   try {
-//     const response = await axios.put(
-//       `${API_BASE_URL}/update/${projectId}`,
-//       projectData,
-//       getAuthHeaders()
-//     );
-//     return response.data.project;
-//   } catch (error) {
-//     throw new Error(error.response?.data?.error || "Failed to update project");
-//   }
-// };
+  if (!res.ok) {
+    const errData = await res.json();
+    throw new Error(errData.message || "Failed to delete project");
+  }
+  return await res.json();
+};
+
+export const updateProjectFlow = async (projectId, fileTree) => {
+  try {
+    const response = await axios.patch(
+      `${API_BASE_URL}/update-flow/${projectId}`,
+      { fileTree },
+      getAuthHeaders()
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || "Failed to update project flow"
+    );
+  }
+};
