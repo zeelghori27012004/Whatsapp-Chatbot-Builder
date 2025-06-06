@@ -29,7 +29,10 @@ export const createProject = async (projectData) => {
     );
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error || "Failed to create project");
+    throw new Error(
+      error.response?.data?.error ||
+        "Failed to create project. Please note that the project name must be unique."
+    );
   }
 };
 

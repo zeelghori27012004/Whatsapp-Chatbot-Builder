@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
 
-function NodeDialog({ node, onClose, onSave, onDelete }) {
+function EdgeDialog({ edge, onClose, onSave, onDelete }) {
   const [label, setLabel] = useState("");
 
   useEffect(() => {
-    if (node?.data?.label) {
-      setLabel(node.data.label);
-    }
-  }, [node]);
+    setLabel(edge?.label || "");
+  }, [edge]);
 
   const handleSave = () => {
-    onSave({ ...node, data: { ...node.data, label } });
+    onSave({ ...edge, label });
     onClose();
   };
 
   const handleDelete = () => {
-    onDelete(node.id);
+    onDelete(edge.id);
     onClose();
   };
 
-  if (!node) return null;
+  if (!edge) return null;
 
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-opacity-50 flex justify-center items-center z-50">
@@ -29,14 +27,12 @@ function NodeDialog({ node, onClose, onSave, onDelete }) {
         <button
           onClick={handleDelete}
           className="absolute top-4 right-4 text-red-500 hover:text-red-700"
-          title="Delete node"
+          title="Delete edge"
         >
           <Trash2 className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-bold mb-4">
-          Edit {node?.data?.label} Node
-        </h2>
+        <h2 className="text-lg font-bold mb-4">Edit Edge {edge.id}</h2>
 
         <label className="block mb-2 text-sm font-medium text-gray-700">
           Label
@@ -46,6 +42,7 @@ function NodeDialog({ node, onClose, onSave, onDelete }) {
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+          placeholder="Edge label"
         />
 
         <div className="flex justify-end gap-2">
@@ -67,4 +64,4 @@ function NodeDialog({ node, onClose, onSave, onDelete }) {
   );
 }
 
-export default NodeDialog;
+export default EdgeDialog;

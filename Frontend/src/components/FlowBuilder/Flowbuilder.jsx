@@ -1,19 +1,30 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import FlowCanvas from "./Flowcanvas";
+import { useParams } from "react-router-dom";
 import FlowBuilderLeftSidebar from "./Flowbuilderleftsidebar";
 import FlowBuilderRightSidebar from "./Flowbuilderrightsidebar";
+import {
+  updateProjectFlow,
+  getProjectById,
+} from "../../services/projectService";
 
 function FlowBuilder() {
-  const [leftOpen, setLeftOpen] = useState(false);
-  const [rightOpen, setRightOpen] = useState(false);
+  const { id: projectId } = useParams();
 
   const reactFlowWrapper = useRef(null);
 
-  // Hold nodes and edges state here so sidebar and canvas can share
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
 
-  // Add node at center of canvas view on sidebar click
+  const onReset = useCallback(() => {
+    setNodes([]);
+    setEdges([]);
+    saveFlow();
+  }, [setNodes, setEdges]);
+
   const onAddNode = useCallback(
     (type) => {
       if (!reactFlowWrapper.current) return;
@@ -27,28 +38,55 @@ function FlowBuilder() {
         id,
         type,
         position,
-        data: { label: `${type} node` },
+        data: { label: type.replace(/(Trigger|Action|Condition)$/, "") },
       };
       setNodes((nds) => [...nds, newNode]);
     },
     [setNodes]
   );
 
+  useEffect(() => {
+    const fetchProjectFlow = async () => {
+      try {
+        const projectFlow = await getProjectById(projectId);
+        if (projectFlow && projectFlow.fileTree) {
+          setNodes(projectFlow.fileTree.nodes || []);
+          setEdges(projectFlow.fileTree.edges || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch flow:", error);
+        toast.error("Failed to load flow.");
+      }
+    };
+
+    fetchProjectFlow();
+  }, [projectId]);
+
+  const saveFlow = async () => {
+    const fileTree = { nodes, edges };
+    try {
+      const data = await updateProjectFlow(projectId, fileTree);
+      console.log("Flow updated:", data);
+      toast.success("Flow saved successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message || "Failed to save flow");
+    }
+  };
+
   return (
     <div className="relative h-screen w-full bg-gray-100 overflow-hidden">
-      <FlowBuilderLeftSidebar
-        leftOpen={leftOpen}
-        setLeftOpen={setLeftOpen}
-        onAddNode={onAddNode}
-      />
+      <ToastContainer position="top-center" autoClose={2000} />
+
+      <FlowBuilderLeftSidebar onAddNode={onAddNode} />
 
       <div
         ref={reactFlowWrapper}
         style={{
           position: "absolute",
           top: 0,
-          left: leftOpen ? "250px" : "80px", // Adjust based on sidebar width
-          right: rightOpen ? "250px" : "80px", // Adjust based on sidebar width
+          left: "80px",
+          right: "80px",
           bottom: 0,
         }}
       >
@@ -60,10 +98,7 @@ function FlowBuilder() {
         />
       </div>
 
-      <FlowBuilderRightSidebar
-        rightOpen={rightOpen}
-        setRightOpen={setRightOpen}
-      />
+      <FlowBuilderRightSidebar onReset={onReset} onSave={saveFlow} />
     </div>
   );
 }
