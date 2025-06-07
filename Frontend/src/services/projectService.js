@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3000/projects";
+const API_BASE_URL = `${import.meta.env.VITE_SERVER_DOMAIN}/projects`;
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
@@ -62,14 +62,14 @@ export const getProjectById = async (projectId) => {
 };
 
 export const deleteProject = async (projectId) => {
-  const token = localStorage.getItem("token"); // if you use token auth
+  const token = localStorage.getItem("token");
   const res = await fetch(
-    `http://localhost:3000/projects/delete/${projectId}`,
+    `${import.meta.env.VITE_SERVER_DOMAIN}/projects/delete/${projectId}`,
     {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // if your backend requires auth
+        Authorization: `Bearer ${token}`,
       },
     }
   );
