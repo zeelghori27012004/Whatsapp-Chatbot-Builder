@@ -1,9 +1,12 @@
 export const login = async (formData) => {
-  const response = await fetch("http://localhost:3000/users/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_DOMAIN}/users/login`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    }
+  );
 
   const text = await response.text();
   let data;
@@ -14,7 +17,7 @@ export const login = async (formData) => {
   }
 
   if (!response.ok) {
-    throw new Error((data && data.message) || "Login failed");
+    throw new Error(data?.message || "Login failed");
   }
 
   if (!data.token) {
@@ -26,11 +29,14 @@ export const login = async (formData) => {
 };
 
 export const register = async (formData) => {
-  const response = await fetch("http://localhost:3000/users/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  });
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_DOMAIN}/users/register`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    }
+  );
 
   const text = await response.text();
   let data;
@@ -41,7 +47,7 @@ export const register = async (formData) => {
   }
 
   if (!response.ok) {
-    throw new Error((data && data.message) || "Registration failed");
+    throw new Error(data?.message || "Registration failed");
   }
 
   if (!data.token) {
