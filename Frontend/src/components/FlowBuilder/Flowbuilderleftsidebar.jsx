@@ -1,18 +1,19 @@
 import React from "react";
 import { Zap, ListChecks, CheckCircle2 } from "lucide-react";
 import nodeTypes from "../Nodes/NodeTypes";
+import { getNodeLabel } from "./HelperFunctions";
 
 export default function FlowBuilderLeftSidebar({ onAddNode }) {
   const TriggerNodes = Object.keys(nodeTypes).filter((key) =>
-    key.endsWith("Trigger")
+    key.startsWith("Trigger")
   );
 
   const ConditionNodes = Object.keys(nodeTypes).filter((key) =>
-    key.endsWith("Condition")
+    key.startsWith("Condition")
   );
 
   const ActionNodes = Object.keys(nodeTypes).filter((key) =>
-    key.endsWith("Action")
+    key.startsWith("Action")
   );
 
   return (
@@ -48,15 +49,15 @@ export default function FlowBuilderLeftSidebar({ onAddNode }) {
           <span className="text-xs mt-1 text-center">{section.label}</span>
 
           {/* Hover Popup for Node Options */}
-          <div className="absolute top-0 left-full w-fit bg-white border rounded shadow-lg opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 scale-95 group-hover:scale-100 transition-all duration-300 z-20 pointer-events-none group-hover:pointer-events-auto">
+          <div className="absolute top-0 left-full w-max  bg-white border rounded shadow-lg opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 scale-95 group-hover:scale-100 transition-all duration-300 z-20 pointer-events-none group-hover:pointer-events-auto">
             <ul className="text-sm py-2">
               {section.options.map((item, i) => (
                 <li
                   key={i}
-                  className="px-4 py-2 hover:bg-indigo-100 cursor-pointer"
+                  className="px-2 py-2 rounded-xl hover:bg-indigo-500 cursor-pointer bg-indigo-200 m-2 hover:text-white transition-all duration-300"
                   onClick={() => onAddNode(item)}
                 >
-                  {item}
+                  {getNodeLabel(item)}
                 </li>
               ))}
             </ul>

@@ -1,17 +1,37 @@
-import FirstVisit from "./TriggerNodes/Firstvisit";
-import VisitorReturnstoSite from "./TriggerNodes/Visitorreturnstosite";
-import VisitorClicksOnChatIcon from "./TriggerNodes/Visitorclicksonchaticon";
-import SendaMessage from "./ActionNodes/Sendamessage";
-import AskaQuestion from "./ActionNodes/Askaquestion";
-import ReturningVisitor from "./ConditionNodes/Returningvisitor";
+import {
+  ActionApiCall,
+  ActionDelay,
+  ActionQuickReply,
+  ActionSendMedia,
+  ActionSendText,
+  ActionSetVariable,
+  AiGpt,
+  ConditionKeyword,
+  ConditionVariable,
+  ControlEndFlow,
+  ControlGoto,
+  DebugLog,
+  InputAsk,
+  TriggerNewChat,
+  TriggerUserMessage,
+} from "./NodeWrapper";
 
 const nodeTypes = {
-  FirstVisitTrigger: FirstVisit,
-  VisitorReturnToSiteTrigger: VisitorReturnstoSite,
-  VisitorClicksOnChatIconTrigger: VisitorClicksOnChatIcon,
-  SendaMessageAction: SendaMessage,
-  AskaQuestionAction: AskaQuestion,
-  ReturningVisitorCondition: ReturningVisitor,
+  TriggerUserMessage: TriggerUserMessage,
+  TriggerNewChat: TriggerNewChat,
+  ConditionKeyword: ConditionKeyword,
+  ConditionVariable: ConditionVariable,
+  ActionSendText: ActionSendText,
+  ActionSendMedia: ActionSendMedia,
+  ActionQuickReply: ActionQuickReply,
+  ActionDelay: ActionDelay,
+  ActionSetVariable: ActionSetVariable,
+  ActionApiCall: ActionApiCall,
+  ControlGoto: ControlGoto,
+  ControlEndFlow: ControlEndFlow,
+  ConditionInputAsk: InputAsk,
+  ConditionAiGpt: AiGpt,
+  ConditionDebugLog: DebugLog,
 };
 
 export default nodeTypes;
