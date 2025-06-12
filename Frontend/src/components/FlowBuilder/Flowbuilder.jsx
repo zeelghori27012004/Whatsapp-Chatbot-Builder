@@ -6,10 +6,17 @@ import FlowCanvas from "./Flowcanvas";
 import { useParams } from "react-router-dom";
 import FlowBuilderLeftSidebar from "./Flowbuilderleftsidebar";
 import FlowBuilderRightSidebar from "./Flowbuilderrightsidebar";
+
 import {
   updateProjectFlow,
   getProjectById,
 } from "../../services/projectService";
+
+import {
+  getNodeLabel,
+  getNodeCategory,
+  getInitialFields,
+} from "./HelperFunctions";
 
 function FlowBuilder() {
   const { id: projectId } = useParams();
@@ -28,21 +35,52 @@ function FlowBuilder() {
   const onAddNode = useCallback(
     (type) => {
       if (!reactFlowWrapper.current) return;
+
       const bounds = reactFlowWrapper.current.getBoundingClientRect();
-      const position = {
+
+      // Default center position
+      let position = {
         x: bounds.width / 2,
         y: bounds.height / 2,
       };
+
+      // Avoid overlap: check if any existing node is within 50px radius
+      const OVERLAP_RADIUS = 50;
+
+      const isOverlapping = nodes.some(
+        (node) =>
+          Math.abs(node.position.x - position.x) < OVERLAP_RADIUS &&
+          Math.abs(node.position.y - position.y) < OVERLAP_RADIUS
+      );
+
+      if (isOverlapping) {
+        // Apply slight random offset
+        const offsetX = Math.random() * 100 - 50; // -50 to +50
+        const offsetY = Math.random() * 100 - 50;
+        position.x += offsetX;
+        position.y += offsetY;
+      }
+
       const id = `${type}-${+new Date()}`;
       const newNode = {
-        id,
-        type,
-        position,
-        data: { label: type.replace(/(Trigger|Action|Condition)$/, "") },
+        id, // unique identifier (string)
+        type: type,
+        // subtype: type, // this stays "default" for React Flow node type
+        position, // { x, y }
+        data: {
+          label: getNodeLabel(type),
+          content: `${type}`,
+          properties: {
+            // "trigger" | "action" | "condition"
+            fields: getInitialFields(type), // Optional: used for form fields in dialog
+            isSelected: false, // optional UI state
+          },
+        },
       };
+      console.log(type);
       setNodes((nds) => [...nds, newNode]);
     },
-    [setNodes]
+    [setNodes, nodes]
   );
 
   useEffect(() => {
@@ -76,7 +114,11 @@ function FlowBuilder() {
 
   return (
     <div className="relative h-screen w-full bg-gray-100 overflow-hidden">
-      <ToastContainer position="top-center" autoClose={2000} />
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        pauseOnHover={false}
+      />
 
       <FlowBuilderLeftSidebar onAddNode={onAddNode} />
 
