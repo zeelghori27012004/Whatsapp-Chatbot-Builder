@@ -7,24 +7,20 @@ const nodeSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ['text', 'question', 'apiCall', 'decision', 'input'],
+      enum: ["default", "question", "apiCall", "decision", "input"],
     },
 
-  
     subtype: {
       type: String,
       required: false,
       enum: [
-        'greeting',          // for type: text
-        'farewell',          // for type: text
-        'multiple-choice',   // for type: question
-        'yes-no',            // for type: question
-        'http',              // for type: apiCall
-        'db-query',          // for type: apiCall
-        'if-else',           // for type: decision
-        'user-input',        // for type: input
-        'date-picker',       // etc...
-        'custom',            // fallback
+        "trigger", // for type: text
+        "action", // for type: text
+        "condition", // for type: question
+        "control", // for type: question
+        "input", // for type: apiCall
+        "ai", // for type: apiCall
+        "debug", // for type: decision
       ],
     },
 
@@ -36,15 +32,28 @@ const nodeSchema = new mongoose.Schema(
     data: {
       label: { type: String },
       content: { type: String },
+      // quickReplies: [{ type: String }], // For WhatsApp buttons / reply options
+      media: {
+        url: { type: String },
+        type: { type: String, enum: ["image", "video", "audio", "document"] },
+      },
       properties: {
         type: mongoose.Schema.Types.Mixed,
         default: {},
       },
     },
+
+    // data: {
+    //   label: { type: String },
+    //   content: { type: String },
+    //   properties: {
+    //     type: mongoose.Schema.Types.Mixed,
+    //     default: {},
+    //   },
+    // },
   },
   { _id: false }
 );
-
 
 const edgeSchema = new mongoose.Schema(
   {
@@ -52,6 +61,7 @@ const edgeSchema = new mongoose.Schema(
     source: { type: String, required: true },
     target: { type: String, required: true },
     label: { type: String },
+    condition: { type: mongoose.Schema.Types.Mixed },
     animated: { type: Boolean, default: false },
   },
   { _id: false }

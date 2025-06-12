@@ -10,8 +10,9 @@ import "@xyflow/react/dist/style.css";
 import { useCallback, useState } from "react";
 import CustomEdge from "../Edges/Customedge";
 import nodeTypes from "../Nodes/NodeTypes";
-import NodeDialog from "./Nodedialog";
-import EdgeDialog from "./Edgedialog";
+import NodeDialog from "../Nodes/Nodedialog";
+import BaseNodeDialog from "../Nodes/Nodedialog";
+import EdgeDialog from "../Edges/Edgedialog";
 
 const edgeTypes = {
   testingEdge: CustomEdge,
@@ -84,7 +85,13 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
   return (
     <div className="h-[100vh] w-[90vw] bg-slate-300 relative">
       <ReactFlow
-        nodes={nodes}
+        nodes={nodes.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            isSelected: selectedNode?.id === node.id,
+          },
+        }))}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         edges={edges}
@@ -100,7 +107,7 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
       </ReactFlow>
 
       {selectedNode && (
-        <NodeDialog
+        <BaseNodeDialog
           node={selectedNode}
           onClose={handleCloseNodeDialog}
           onDelete={handleDeleteNode}
