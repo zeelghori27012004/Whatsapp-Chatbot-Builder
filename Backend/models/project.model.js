@@ -6,26 +6,17 @@ const nodeSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      required: true,
-      enum: ['text', 'question', 'apiCall', 'decision', 'input'],
-    },
-
-  
-    subtype: {
-      type: String,
-      required: false,
       enum: [
-        'greeting',          // for type: text
-        'farewell',          // for type: text
-        'multiple-choice',   // for type: question
-        'yes-no',            // for type: question
-        'http',              // for type: apiCall
-        'db-query',          // for type: apiCall
-        'if-else',           // for type: decision
-        'user-input',        // for type: input
-        'date-picker',       // etc...
-        'custom',            // fallback
+        "start",
+        "message",
+        "condition",
+        "api",
+        "delay",
+        "random",
+        "goto",
+        "end",
       ],
+      required: true,
     },
 
     position: {
@@ -44,7 +35,6 @@ const nodeSchema = new mongoose.Schema(
   },
   { _id: false }
 );
-
 
 const edgeSchema = new mongoose.Schema(
   {
@@ -78,12 +68,14 @@ const projectSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
+        required: true 
       },
     ],
     fileTree: {
       type: fileTreeSchema,
       default: () => ({ nodes: [], edges: [] }),
     },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     usage: { type: Number, default: 0 },
   },
   { timestamps: true }
