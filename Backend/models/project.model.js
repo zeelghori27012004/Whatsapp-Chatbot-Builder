@@ -10,10 +10,10 @@ const nodeSchema = new mongoose.Schema(
         "start",
         "message",
         "condition",
-        "api",
-        "delay",
-        "random",
-        "goto",
+        // "api",
+        // "delay",
+        // "random",
+        // "goto",
         "end",
       ],
       required: true,
@@ -43,6 +43,7 @@ const edgeSchema = new mongoose.Schema(
     target: { type: String, required: true },
     label: { type: String },
     animated: { type: Boolean, default: false },
+    type: { type: String, default: "default" },
   },
   { _id: false }
 );
@@ -68,7 +69,7 @@ const projectSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
-        required: true 
+        required: true,
       },
     ],
     fileTree: {

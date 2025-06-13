@@ -5,15 +5,15 @@ import { getNodeLabel } from "./HelperFunctions";
 
 export default function FlowBuilderLeftSidebar({ onAddNode }) {
   const TriggerNodes = Object.keys(nodeTypes).filter((key) =>
-    key.startsWith("Trigger")
+    key.startsWith("start")
   );
 
-  const ConditionNodes = Object.keys(nodeTypes).filter((key) =>
-    key.startsWith("Condition")
+  const ConditionNodes = Object.keys(nodeTypes).filter(
+    (key) => key.startsWith("condition") || key.startsWith("end")
   );
 
   const ActionNodes = Object.keys(nodeTypes).filter((key) =>
-    key.startsWith("Action")
+    key.startsWith("message")
   );
 
   return (

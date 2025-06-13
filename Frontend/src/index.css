@@ -27,6 +27,20 @@ button {
     animation: slideInBottom 0.3s ease-out forwards;
   }
 
+  @keyframes dashmove {
+    0% {
+      stroke-dashoffset: 40;
+    }
+    100% {
+      stroke-dashoffset: 20;
+    }
+  }
+
+  .animated-dashed-edge {
+    stroke-dasharray: 5, 5;
+    animation: dashmove 1s linear infinite;
+  }
+
   @keyframes slideInBottom {
     from {
       transform: translateY(100%);
