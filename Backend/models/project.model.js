@@ -6,22 +6,17 @@ const nodeSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      required: true,
-      enum: ["default", "question", "apiCall", "decision", "input"],
-    },
-
-    subtype: {
-      type: String,
-      required: false,
       enum: [
-        "trigger", // for type: text
-        "action", // for type: text
-        "condition", // for type: question
-        "control", // for type: question
-        "input", // for type: apiCall
-        "ai", // for type: apiCall
-        "debug", // for type: decision
+        "start",
+        "message",
+        "condition",
+        "api",
+        "delay",
+        "random",
+        "goto",
+        "end",
       ],
+      required: true,
     },
 
     position: {
@@ -32,25 +27,11 @@ const nodeSchema = new mongoose.Schema(
     data: {
       label: { type: String },
       content: { type: String },
-      // quickReplies: [{ type: String }], // For WhatsApp buttons / reply options
-      media: {
-        url: { type: String },
-        type: { type: String, enum: ["image", "video", "audio", "document"] },
-      },
       properties: {
         type: mongoose.Schema.Types.Mixed,
         default: {},
       },
     },
-
-    // data: {
-    //   label: { type: String },
-    //   content: { type: String },
-    //   properties: {
-    //     type: mongoose.Schema.Types.Mixed,
-    //     default: {},
-    //   },
-    // },
   },
   { _id: false }
 );
@@ -61,7 +42,6 @@ const edgeSchema = new mongoose.Schema(
     source: { type: String, required: true },
     target: { type: String, required: true },
     label: { type: String },
-    condition: { type: mongoose.Schema.Types.Mixed },
     animated: { type: Boolean, default: false },
   },
   { _id: false }
@@ -88,12 +68,14 @@ const projectSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
+        required: true 
       },
     ],
     fileTree: {
       type: fileTreeSchema,
       default: () => ({ nodes: [], edges: [] }),
     },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     usage: { type: Number, default: 0 },
   },
   { timestamps: true }
