@@ -1,4 +1,4 @@
-import { Router } from "express";
+import {Router} from "express";
 import {
   verifyWebhook,
   handleIncomingMessage,
@@ -7,9 +7,9 @@ import {
 const router = Router();
 
 // Route for Meta to verify the webhook
-router.get("/:projectId", verifyWebhook);
+router.get("/webhook", verifyWebhook);
 
 // Route for Meta to send message updates
-router.post("/:projectId", handleIncomingMessage);
+router.post("/webhook", handleIncomingMessage);
 
 export default router;

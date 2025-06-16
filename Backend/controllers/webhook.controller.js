@@ -1,66 +1,62 @@
 import projectModel from "../models/project.model.js";
-import { processMessage } from "../services/flowExecutor.service.js";
+import {processMessage} from "../services/flowExecutor.service.js";
 
+// Webhook verification (GET /webhook)
+export const verifyWebhook = (req, res) => {
+  const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
 
-export const verifyWebhook = async (req, res) => {
-  const { projectId } = req.params;
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
-  try {
-    const project = await projectModel.findById(projectId);
-    if (!project || !project.whatsappWebhookVerifyToken) {
-      throw new Error("Project not found or not configured for WhatsApp.");
-    }
-
-    if (mode && token) {
-      if (mode === "subscribe" && token === project.whatsappWebhookVerifyToken) {
-        console.log("WEBHOOK_VERIFIED");
-        res.status(200).send(challenge);
-      } else {
-        res.sendStatus(403);
-      }
-    } else {
-      res.sendStatus(400);
-    }
-  } catch (error) {
-    console.error("Error verifying webhook:", error);
-    res.status(500).send(error.message);
+  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("Webhook verified.");
+    return res.status(200).send(challenge);
   }
+
+  return res.sendStatus(403);
 };
 
-// This controller handles incoming messages
+// Incoming message handler (POST /webhook)
 export const handleIncomingMessage = async (req, res) => {
-  const { projectId } = req.params;
-  const body = req.body;
+  try {
+    const body = req.body;
+    console.log("Incoming webhook:", JSON.stringify(body, null, 2));
 
-  console.log("Incoming webhook:", JSON.stringify(body, null, 2));
+    if (body.object !== "whatsapp_business_account") return res.sendStatus(404);
 
-  // Check if it's a valid WhatsApp notification
-  if (body.object === "whatsapp_business_account") {
-    const entry = body.entry[0];
-    if (entry.changes) {
-      const change = entry.changes[0];
-      if (
-        change.value.messages &&
-        change.value.messages[0] &&
-        change.value.messages[0].type === "text"
-      ) {
-        const message = change.value.messages[0];
-        const from = message.from; // Sender's phone number
-        const msg_body = message.text.body; // The message text
+    const entry = body.entry?.[0];
+    const change = entry?.changes?.[0]?.value;
 
-        console.log(`Message from ${from}: "${msg_body}" for project ${projectId}`);
-        
-       
-        await processMessage({
-          projectId,
-          senderWaId: from,
-          messageText: msg_body,
-        });
-      }
+    const phoneNumberId = change?.metadata?.phone_number_id;
+    const message = change?.messages?.[0];
+
+    if (!phoneNumberId || !message || message.type !== "text") {
+      return res.sendStatus(200); // Ignore unsupported message types
     }
+
+    const project = await projectModel.findOne({
+      whatsappPhoneNumberId: phoneNumberId,
+      isActive: true,
+    });
+
+    if (!project) {
+      console.warn("No project found for phone_number_id:", phoneNumberId);
+      return res.sendStatus(404);
+    }
+
+    const from = message.from;
+    const text = message.text.body;
+
+    await processMessage({
+      projectId: project._id,
+      senderWaPhoneNo: from,
+      messageText: text,
+    });
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Error handling incoming message:", err);
+    res.sendStatus(500);
   }
-  res.sendStatus(200);
 };
