@@ -14,8 +14,8 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      minLength: [ 6, 'Email must be atleast 6 characters long' ],
-      maxLength: [ 50, 'Email must not be longer than 50 characters' ]
+      minLength: [6, "Email must be atleast 6 characters long"],
+      maxLength: [50, "Email must not be longer than 50 characters"],
     },
     phoneNumber: {
       type: Number,
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      select: false, 
+      select: false,
       required: true,
     },
     isAdmin: { type: Boolean, default: false },
@@ -32,22 +32,19 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.statics.hashPassword = async function (password) {
-    return await bcrypt.hash(password, 10);
-}
+  return await bcrypt.hash(password, 10);
+};
 
 userSchema.methods.isValidPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
-}
+  return await bcrypt.compare(password, this.password);
+};
 
 userSchema.methods.generateJWT = function () {
-    return jwt.sign(
-        { email: this.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
-}
+  return jwt.sign({ email: this.email }, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
+};
 
-
-const User = mongoose.model('user', userSchema);
+const User = mongoose.model("user", userSchema);
 
 export default User;

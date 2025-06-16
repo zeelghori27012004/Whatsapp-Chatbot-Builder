@@ -195,3 +195,34 @@ export const removeUserFromProject = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+export const updateWhatsappConfig = async (req, res) => {
+  const { projectId } = req.params;
+  const {
+    whatsappPhoneNumberId,
+    whatsappAccessToken,
+    whatsappWebhookVerifyToken,
+  } = req.body;
+
+  try {
+    const loggedInUser = await userModel.findOne({ email: req.user.email });
+
+    const updatedProject = await projectService.updateWhatsappConfig({
+      projectId,
+      userId: loggedInUser._id,
+      configData: {
+        whatsappPhoneNumberId,
+        whatsappAccessToken,
+        whatsappWebhookVerifyToken,
+      },
+    });
+
+    return res.status(200).json({
+      message: "WhatsApp configuration updated successfully",
+      project: updatedProject,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ error: error.message });
+  }
+};

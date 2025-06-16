@@ -225,3 +225,29 @@ export const removeUserFromProject = async ({
   project.users = project.users.filter((u) => u.toString() !== userToRemove);
   return await project.save();
 };
+
+export const updateWhatsappConfig = async ({
+  projectId,
+  userId,
+  configData,
+}) => {
+  if (!isValidObjectId(projectId)) throw new Error("Invalid Project ID");
+
+  const project = await projectModel.findOne({ _id: projectId, users: userId });
+
+  if (!project) {
+    throw new Error("Project not found or user not authorized");
+  }
+
+  const {
+    whatsappPhoneNumberId,
+    whatsappAccessToken,
+    whatsappWebhookVerifyToken,
+  } = configData;
+
+  project.whatsappPhoneNumberId = whatsappPhoneNumberId;
+  project.whatsappAccessToken = whatsappAccessToken;
+  project.whatsappWebhookVerifyToken = whatsappWebhookVerifyToken;
+
+  return await project.save();
+};
