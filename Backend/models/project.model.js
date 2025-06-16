@@ -10,10 +10,10 @@ const nodeSchema = new mongoose.Schema(
         "start",
         "message",
         "condition",
-        // "api",
-        // "delay",
-        // "random",
-        // "goto",
+        "api",
+        "delay",
+        "random",
+        "goto",
         "end",
       ],
       required: true,
@@ -43,7 +43,6 @@ const edgeSchema = new mongoose.Schema(
     target: { type: String, required: true },
     label: { type: String },
     animated: { type: Boolean, default: false },
-    type: { type: String, default: "default" },
   },
   { _id: false }
 );
@@ -78,6 +77,18 @@ const projectSchema = new mongoose.Schema(
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     usage: { type: Number, default: 0 },
+    whatsappPhoneNumberId: {
+      type: String,
+      trim: true,
+    },
+    whatsappAccessToken: {
+      type: String,
+      trim: true,
+    },
+    whatsappWebhookVerifyToken: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );

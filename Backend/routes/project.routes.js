@@ -77,16 +77,21 @@ router.patch(
   projectController.removeUserFromProject
 );
 
-// router.post(
-//   "/start-flow",
-//   authMiddleWare.authUser,
-//   projectController.startFlowController
-// );
+router.patch(
+  "/whatsapp-config/:projectId",
+  authMiddleWare.authUser,
+  projectController.updateWhatsappConfig
+);
 
-// router.post(
-//   "/send-message",
-//   authMiddleWare.authUser,
-//   projectController.continueFlowController
-// );
+router.post(
+  "/start-flow",
+  authMiddleWare.authUser,
+  projectController.startFlowController
+);
+router.post(
+  "/send-message",
+  authMiddleWare.authUser,
+  projectController.continueFlowController
+);
 
 export default router;
