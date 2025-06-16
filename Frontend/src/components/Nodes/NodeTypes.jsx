@@ -1,4 +1,5 @@
 import {
+  ActionButtons,
   ActionApiCall,
   ActionDelay,
   ActionQuickReply,
@@ -22,6 +23,7 @@ const nodeTypes = {
   condition: ConditionKeyword,
   // ConditionVariable: ConditionVariable,
   message: ActionSendText,
+  buttons: ActionButtons,
   // ActionSendMedia: ActionSendMedia,
   // ActionQuickReply: ActionQuickReply,
   // ActionDelay: ActionDelay,

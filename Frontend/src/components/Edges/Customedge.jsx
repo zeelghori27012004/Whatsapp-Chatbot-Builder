@@ -55,8 +55,8 @@ export default function CustomEdge({
 
       {/* Label */}
       {data?.label && (
-        <foreignObject x={labelX - 25} y={labelY - 10} width={50} height={20}>
-          <div className="w-full h-full flex items-center justify-center text-xs font-semibold bg-white rounded shadow border border-gray-300 px-1 py-0.5">
+        <foreignObject x={labelX - 50} y={labelY - 20} width={100} height={80}>
+          <div className="w-auto h-auto flex items-center justify-center text-xs font-semibold bg-white rounded shadow border border-gray-300 px-1 py-0.5">
             {data.label}
           </div>
         </foreignObject>
