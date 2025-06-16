@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { body } from "express-validator";
+import {Router} from "express";
+import {body} from "express-validator";
 import * as projectController from "../controllers/project.controller.js";
 import * as authMiddleWare from "../middleware/auth.middleware.js";
 
@@ -23,7 +23,7 @@ router.put(
   authMiddleWare.authUser,
   body("projectId").isString().withMessage("Project ID is required"),
   body("users")
-    .isArray({ min: 1 })
+    .isArray({min: 1})
     .withMessage("Users must be an array of strings")
     .bail()
     .custom((users) => users.every((user) => typeof user === "string"))
@@ -77,16 +77,10 @@ router.patch(
   projectController.removeUserFromProject
 );
 
-// router.post(
-//   "/start-flow",
-//   authMiddleWare.authUser,
-//   projectController.startFlowController
-// );
-
-// router.post(
-//   "/send-message",
-//   authMiddleWare.authUser,
-//   projectController.continueFlowController
-// );
+router.patch(
+  "/whatsapp-config/:projectId",
+  authMiddleWare.authUser,
+  projectController.updateWhatsappConfig
+);
 
 export default router;
