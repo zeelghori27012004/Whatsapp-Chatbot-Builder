@@ -1,8 +1,12 @@
+import { Plus, X } from "lucide-react";
+import { ActionButtons } from "../Nodes/NodeWrapper";
+
 export function getNodeLabel(type) {
   const map = {
     start: "User Message",
     // TriggerNewChat: "New Chat",
     message: "Send Text",
+    buttons: "Give Options",
     // ActionSendMedia: "Send Media",
     // ActionQuickReply: "Quick Reply",
     // ActionDelay: "Delay",
@@ -23,6 +27,7 @@ export function getNodeCategory(type) {
     TriggerUserMessage: "start",
     // TriggerNewChat: "New Chat",
     ActionSendText: "message",
+    ActionButtons: "buttons",
     // ActionSendMedia: "Send Media",
     // ActionQuickReply: "Quick Reply",
     // ActionDelay: "Delay",
@@ -52,11 +57,13 @@ export function getNodeCategory(type) {
 export function getInitialFields(type) {
   switch (type) {
     case "start":
-      return { QuickReply: "" };
+      return { quickReply: "" };
     case "message":
       return { message: "" };
     case "ActionDelay":
       return { seconds: 2 };
+    case "buttons":
+      return { message: "", buttons: [""] };
     case "condition":
       return { keywords: "" };
     case "ActionSetVariable":
@@ -64,7 +71,7 @@ export function getInitialFields(type) {
     case "ActionApiCall":
       return { url: "", method: "GET" };
     default:
-      return { QuickReply: "" };
+      return { quickReply: "" };
   }
 }
 
@@ -77,10 +84,58 @@ export function NodeFieldRenderer({ formData, onChange }) {
   return (
     <>
       {keys.map((key, idx) => {
-        const label = key.replace(/([a-z])([A-Z])/g, "$1 $2");
+        if (key === "buttons" && Array.isArray(formData.buttons)) {
+          return (
+            <div key={idx} className="mb-4">
+              <label className="text-sm font-medium capitalize block mb-2">
+                Button Options
+              </label>
 
+              {formData.buttons.map((btn, i) => (
+                <div key={i} className="flex items-center mb-2 space-x-2">
+                  <input
+                    type="text"
+                    value={btn}
+                    onChange={(e) => {
+                      const updated = [...formData.buttons];
+                      updated[i] = e.target.value;
+                      onChange("buttons", updated);
+                    }}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder={`Button ${i + 1}`}
+                  />
+                  <button
+                    onClick={() => {
+                      const updated = formData.buttons.filter(
+                        (_, j) => j !== i
+                      );
+                      onChange("buttons", updated);
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                    disabled={formData.buttons.length <= 1}
+                    title="Remove Button"
+                  >
+                    <X />
+                  </button>
+                </div>
+              ))}
+
+              {formData.buttons.length < 3 && (
+                <button
+                  onClick={() => onChange("buttons", [...formData.buttons, ""])}
+                  className="mt-2 text-sm text-blue-600 hover:text-blue-400 flex justify-center items-center"
+                >
+                  <Plus /> Add Button
+                </button>
+              )}
+            </div>
+          );
+        }
+
+        // default renderer for other types
         const value = formData[key];
         const isBoolean = typeof value === "boolean";
+        const label = key.replace(/([a-z])([A-Z])/g, "$1 $2");
 
         return (
           <div key={idx} className="mb-4">

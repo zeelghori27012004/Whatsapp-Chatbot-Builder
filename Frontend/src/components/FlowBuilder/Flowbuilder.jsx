@@ -74,6 +74,7 @@ function FlowBuilder() {
             // "trigger" | "action" | "condition"
             fields: getInitialFields(type), // Optional: used for form fields in dialog
             isSelected: false, // optional UI state
+            waitForUserReply: false,
           },
         },
       };

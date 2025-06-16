@@ -12,6 +12,7 @@ import CustomEdge from "../Edges/Customedge";
 import nodeTypes from "../Nodes/NodeTypes";
 import BaseNodeDialog from "../Nodes/Nodedialog";
 import EdgeDialog from "../Edges/Edgedialog";
+import { X } from "lucide-react";
 
 const edgeTypes = {
   testingEdge: CustomEdge,
@@ -20,10 +21,11 @@ const edgeTypes = {
 function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedEdge, setSelectedEdge] = useState(null);
-
   const [pendingConnection, setPendingConnection] = useState(null);
   const [showLabelPrompt, setShowLabelPrompt] = useState(false);
   const [labelChoice, setLabelChoice] = useState("true");
+  const [availableLabels, setAvailableLabels] = useState([]);
+
   const normalizedEdges = edges.map((edge) => ({
     ...edge,
     type: "testingEdge",
@@ -48,13 +50,38 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
       const sourceNode = nodes.find((node) => node.id === params.source);
 
       if (sourceNode?.type === "condition") {
+        const usedLabels = edges
+          .filter((e) => e.source === params.source)
+          .map((e) => (e.label || e.data?.label)?.toLowerCase());
+
+        const availableOptions = ["true", "false"].filter(
+          (opt) => !usedLabels.includes(opt)
+        );
+
+        setLabelChoice(availableOptions[0] || "true");
+        setAvailableLabels(availableOptions);
+        setPendingConnection(params);
+        setShowLabelPrompt(true);
+      } else if (sourceNode?.type === "buttons") {
+        const buttonLabels = sourceNode.data?.properties?.buttons || [];
+
+        const usedLabels = edges
+          .filter((e) => e.source === params.source)
+          .map((e) => (e.label || e.data?.label)?.toLowerCase());
+
+        const availableOptions = buttonLabels.filter(
+          (label) => !usedLabels.includes(label.toLowerCase())
+        );
+
+        setLabelChoice(availableOptions[0] || "");
+        setAvailableLabels(availableOptions);
         setPendingConnection(params);
         setShowLabelPrompt(true);
       } else {
         setEdges((eds) => addEdge({ ...params, type: "testingEdge" }, eds));
       }
     },
-    [nodes, setEdges]
+    [nodes, edges, setEdges]
   );
 
   const handleLabelConfirm = () => {
@@ -64,6 +91,10 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
           ...pendingConnection,
           type: "testingEdge",
           label: labelChoice,
+          data: {
+            ...pendingConnection.data,
+            label: labelChoice,
+          },
         },
         eds
       )
@@ -105,9 +136,33 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
   };
 
   const handleSaveNode = (updatedNode) => {
-    setNodes((nds) =>
-      nds.map((node) => (node.id === updatedNode.id ? updatedNode : node))
+    const oldNode = nodes.find((node) => node.id === updatedNode.id);
+    const oldButtons = oldNode?.data?.properties?.buttons || [];
+    const newButtons = updatedNode?.data?.properties?.buttons || [];
+
+    const removedButtons = oldButtons.filter(
+      (btn) => !newButtons.includes(btn)
     );
+
+    setEdges((prevEdges) =>
+      prevEdges.filter((edge) => {
+        const edgeLabel = (edge.data?.label || edge.label)
+          ?.toString()
+          .toLowerCase();
+        const sourceMatches = edge.source === updatedNode.id;
+        const labelMatches = removedButtons
+          .map((btn) => btn.toLowerCase())
+          .includes(edgeLabel);
+
+        return !(sourceMatches && labelMatches);
+      })
+    );
+
+    // Update the node
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => (node.id === updatedNode.id ? updatedNode : node))
+    );
+
     handleCloseNodeDialog();
   };
 
@@ -137,12 +192,14 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
         onNodeClick={handleNodeClick}
         onEdgeClick={handleEdgeClick}
         fitView
+        panOnDrag={false}
+        panOnScroll={true}
+        selectionOnDrag={true}
       >
         <Background color="#000" gap="15" />
         <Controls />
       </ReactFlow>
 
-      {/* Node Editing Dialog */}
       {selectedNode && (
         <BaseNodeDialog
           node={selectedNode}
@@ -152,7 +209,6 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
         />
       )}
 
-      {/* Edge Editing Dialog */}
       {selectedEdge && (
         <EdgeDialog
           edge={selectedEdge}
@@ -160,42 +216,66 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
           onClose={handleCloseEdgeDialog}
           onSave={handleSaveEdge}
           nodes={nodes}
+          edges={edges}
         />
       )}
 
-      {/* Label selection dropdown for condition edges */}
-      {showLabelPrompt && (
+      {showLabelPrompt && pendingConnection && (
         <div className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50">
-          <div className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-3 min-w-[200px] text-sm">
+          <div className="bg-white border border-gray-300 rounded-lg shadow-lg px-4 py-3 min-w-[200px] text-sm relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => {
+                setShowLabelPrompt(false);
+                setPendingConnection(null);
+                setLabelChoice("");
+              }}
+            >
+              <X size={16} />
+            </button>
+
             <div className="font-medium mb-2 text-gray-700">
               Select edge label:
             </div>
-            <select
-              value={labelChoice}
-              onChange={(e) => setLabelChoice(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mb-3 text-gray-800"
-            >
-              <option value="true">True</option>
-              <option value="false">False</option>
-            </select>
-            <div className="flex justify-end space-x-2">
-              <button
-                className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                onClick={handleLabelConfirm}
-              >
-                Confirm
-              </button>
-              <button
-                className="bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400"
-                onClick={() => {
-                  setShowLabelPrompt(false);
-                  setPendingConnection(null);
-                  setLabelChoice("true");
-                }}
-              >
-                Cancel
-              </button>
-            </div>
+
+            {availableLabels.length > 0 ? (
+              <>
+                <select
+                  value={labelChoice}
+                  onChange={(e) => setLabelChoice(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded mb-3 text-gray-800"
+                >
+                  {availableLabels.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="flex justify-end space-x-2">
+                  <button
+                    className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                    onClick={handleLabelConfirm}
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    className="bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400"
+                    onClick={() => {
+                      setShowLabelPrompt(false);
+                      setPendingConnection(null);
+                      setLabelChoice("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="text-red-600 text-sm">
+                All available options are already used for this node.
+              </p>
+            )}
           </div>
         </div>
       )}

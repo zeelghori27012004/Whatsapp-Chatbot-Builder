@@ -12,8 +12,8 @@ export default function FlowBuilderLeftSidebar({ onAddNode }) {
     (key) => key.startsWith("condition") || key.startsWith("end")
   );
 
-  const ActionNodes = Object.keys(nodeTypes).filter((key) =>
-    key.startsWith("message")
+  const ActionNodes = Object.keys(nodeTypes).filter(
+    (key) => key.startsWith("message") || key.startsWith("buttons")
   );
 
   return (

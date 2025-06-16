@@ -10,7 +10,7 @@ function BaseNode({
   data,
   hideRightHandle,
 }) {
-  const selectedRing = data?.isSelected ? "ring-4 ring-yellow-500" : "";
+  const selectedRing = data?.isSelected ? "ring-4 ring-black" : "";
 
   return (
     <div className="flex flex-col items-center">
@@ -60,6 +60,7 @@ import {
   MessageSquareReply,
   Zap,
   UserRoundPen,
+  SquareMenuIcon,
 } from "lucide-react";
 
 export const TriggerUserMessage = (props) => (
@@ -197,6 +198,14 @@ export const DebugLog = (props) => (
     {...props}
   />
 );
+export const ActionButtons = (props) => (
+  <BaseNode
+    icon={<SquareMenuIcon size={24} />}
+    label="Button Menu"
+    bgColor="bg-gray-300"
+    {...props}
+  />
+);
 
 // Export all node components from here
 export default {
@@ -205,6 +214,7 @@ export default {
   ConditionKeyword,
   ConditionVariable,
   ActionSendText,
+  ActionButtons,
   ActionSendMedia,
   ActionQuickReply,
   ActionDelay,

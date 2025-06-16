@@ -10,7 +10,7 @@ const nodeSchema = new mongoose.Schema(
         "start",
         "message",
         "condition",
-        // "api",
+        "buttons",
         // "delay",
         // "random",
         // "goto",
