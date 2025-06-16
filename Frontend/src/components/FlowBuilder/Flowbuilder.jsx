@@ -1,16 +1,13 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import {useState, useRef, useCallback, useEffect} from "react";
+import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import FlowCanvas from "./Flowcanvas";
-import { useParams } from "react-router-dom";
+import {useParams} from "react-router-dom";
 import FlowBuilderLeftSidebar from "./Flowbuilderleftsidebar";
 import FlowBuilderRightSidebar from "./Flowbuilderrightsidebar";
 
-import {
-  updateProjectFlow,
-  getProjectById,
-} from "../../services/projectService";
+import {updateProjectFlow, getProjectById} from "../../services/projectService";
 
 import {
   getNodeLabel,
@@ -19,7 +16,7 @@ import {
 } from "./HelperFunctions";
 
 function FlowBuilder() {
-  const { id: projectId } = useParams();
+  const {id: projectId} = useParams();
 
   const reactFlowWrapper = useRef(null);
 
@@ -102,7 +99,7 @@ function FlowBuilder() {
   }, [projectId]);
 
   const saveFlow = async () => {
-    const fileTree = { nodes, edges };
+    const fileTree = {nodes, edges};
     try {
       const data = await updateProjectFlow(projectId, fileTree);
       console.log("Flow updated:", data);
