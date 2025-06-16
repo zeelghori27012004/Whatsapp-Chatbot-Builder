@@ -23,17 +23,6 @@ export async function processMessage({
       return;
     }
     currentNodeId = startNode.id;
-
-    // If start node has a QuickReply message, send it immediately
-    const quickReply = startNode.data?.properties?.QuickReply;
-    if (quickReply) {
-      // console.log("Quick Reply sent!!");
-      await sendWhatsappMessage({
-        to: senderWaPhoneNo,
-        text: quickReply,
-        projectId,
-      });
-    }
   }
 
   await executeNode(currentNodeId, {
@@ -56,6 +45,16 @@ async function executeNode(nodeId, context) {
 
   console.log(`Executing node ${node.id} of type ${node.type}`);
 
+  // ✅ Send QuickReply if present
+  const quickReply = node.data?.properties?.quickReply;
+  if (quickReply) {
+    await sendWhatsappMessage({
+      to: context.senderWaPhoneNo,
+      text: quickReply,
+      projectId: context.projectId,
+    });
+  }
+
   let nextNodeId = null;
 
   switch (node.type) {
@@ -65,7 +64,6 @@ async function executeNode(nodeId, context) {
 
     case "message":
       const message = node.data?.properties?.message || "Default message";
-      // console.log(`[DEBUG] Sending message: "${message}" from node ${node.id}`);
       await sendWhatsappMessage({
         to: context.senderWaPhoneNo,
         text: message,
@@ -104,9 +102,20 @@ async function executeNode(nodeId, context) {
       break;
   }
 
+  // ✅ Handle dynamic wait-for-reply behavior
+  const waitForReply = node.data?.properties?.waitForUserReply === true;
+
   if (nextNodeId) {
     await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
-    await executeNode(nextNodeId, context);
+
+    if (!waitForReply) {
+      // auto-continue
+      await executeNode(nextNodeId, context);
+    } else {
+      console.log(
+        `Waiting for user reply before continuing from node ${node.id}`
+      );
+    }
   } else {
     console.log(
       `Flow ended for user ${context.senderWaPhoneNo}. No next node.`
