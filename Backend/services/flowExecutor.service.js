@@ -9,10 +9,45 @@ export async function processMessage({
   senderWaPhoneNo,
   messageText,
 }) {
+  const userStateKey = `flow-state:${senderWaPhoneNo}:${projectId}`;
+
+  // Check if waiting for a button reply
+  const awaiting = await redisClient.get(`${userStateKey}:awaitingButtonResponse`);
+  if (awaiting) {
+    const { nodeId, buttons } = JSON.parse(awaiting);
+    const cleanedInput = messageText.trim().toLowerCase().replace(/\s+/g, "_");
+
+    if (buttons.includes(cleanedInput)) {
+      const fileTree = await getProjectFileTree(projectId);
+      const nextNodeId = findNextNode(nodeId, fileTree.edges, cleanedInput);
+
+      if (nextNodeId) {
+        await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
+        await redisClient.del(`${userStateKey}:awaitingButtonResponse`);
+        await executeNode(nextNodeId, {
+          projectId,
+          senderWaPhoneNo,
+          messageText,
+          fileTree,
+          userStateKey,
+        });
+        return;
+      }
+    }
+
+    // Invalid button input
+    await sendWhatsappMessage({
+      to: senderWaPhoneNo,
+      text: "Invalid response. Please choose one of the buttons.",
+      projectId,
+    });
+    return;
+  }
+
+  // Start or continue flow normally
   const fileTree = await getProjectFileTree(projectId);
   if (!fileTree) return;
 
-  const userStateKey = `flow-state:${senderWaPhoneNo}:${projectId}`;
   let currentNodeId = await redisClient.get(userStateKey);
 
   if (!currentNodeId) {
@@ -110,8 +145,17 @@ async function executeNode(nodeId, context) {
         buttons: formattedButtons,
       });
 
-      // Wait for user's reply
-      break;
+      // Save expected button replies to redis for later matching
+      await redisClient.set(
+        `${userStateKey}:awaitingButtonResponse`,
+        JSON.stringify({
+          nodeId: node.id,
+          buttons: buttons.map((btn) => btn.toLowerCase().replace(/\s+/g, "_")),
+        }),
+        "EX",
+        3600
+      );
+      return;
 
     case "end":
       console.log("Flow ended by end node.");
