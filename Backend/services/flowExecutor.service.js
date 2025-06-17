@@ -15,11 +15,11 @@ export async function processMessage({
   const awaiting = await redisClient.get(`${userStateKey}:awaitingButtonResponse`);
   if (awaiting) {
     const { nodeId, buttons } = JSON.parse(awaiting);
-    const cleanedInput = messageText.trim().toLowerCase().replace(/\s+/g, "_");
+    const cleanedInput = messageText.trim().toLowerCase();
 
     if (buttons.includes(cleanedInput)) {
       const fileTree = await getProjectFileTree(projectId);
-      const nextNodeId = findNextNode(nodeId, fileTree.edges, cleanedInput);
+      const nextNodeId = findNextNode(nodeId, fileTree.edges, cleanedInput.replace(/\s+/g, "_"));
 
       if (nextNodeId) {
         await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
@@ -77,10 +77,8 @@ async function executeNode(nodeId, context) {
     await redisClient.del(userStateKey);
     return;
   }
-
   console.log(`Executing node ${node.id} of type ${node.type}`);
 
-  // ✅ Send QuickReply if present
   const quickReply = node.data?.properties?.quickReply;
   if (quickReply) {
     await sendWhatsappMessage({
@@ -130,7 +128,7 @@ async function executeNode(nodeId, context) {
       const buttonText = node.data?.properties?.message || "Choose an option:";
       const buttons = node.data?.properties?.buttons || [];
 
-      const formattedButtons = buttons.map((btn) => ({
+      const formattedButtons = buttons.map((btn, index) => ({
         type: "reply",
         reply: {
           id: btn.toLowerCase().replace(/\s+/g, "_"),
@@ -145,12 +143,12 @@ async function executeNode(nodeId, context) {
         buttons: formattedButtons,
       });
 
-      // Save expected button replies to redis for later matching
+      // Store expected *visible* button titles in lowercase
       await redisClient.set(
         `${userStateKey}:awaitingButtonResponse`,
         JSON.stringify({
           nodeId: node.id,
-          buttons: buttons.map((btn) => btn.toLowerCase().replace(/\s+/g, "_")),
+          buttons: buttons.map((btn) => btn.trim().toLowerCase()),
         }),
         "EX",
         3600
@@ -168,14 +166,12 @@ async function executeNode(nodeId, context) {
       break;
   }
 
-  // ✅ Handle dynamic wait-for-reply behavior
   const waitForReply = node.data?.properties?.waitForUserReply === true;
 
   if (nextNodeId) {
     await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
 
     if (!waitForReply) {
-      // auto-continue
       await executeNode(nextNodeId, context);
     } else {
       console.log(
