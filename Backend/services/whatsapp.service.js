@@ -23,7 +23,7 @@ async function getProjectCredentials(projectId) {
  * @param {string} params.to - Receiver WhatsApp number in international format
  * @param {string} params.text - The main message body
  * @param {string} params.projectId - Project ID to fetch credentials
- * @param {string[]} [params.buttons] - Optional array of button labels (max 3)
+ * @param {string[] | Object[]} [params.buttons] - Optional array of button labels (max 3) or formatted button objects
  */
 export async function sendWhatsappMessage({ to, text, projectId, buttons = [] }) {
   try {
@@ -35,6 +35,17 @@ export async function sendWhatsappMessage({ to, text, projectId, buttons = [] })
 
     // ✅ If buttons are provided, send interactive button message
     if (buttons.length > 0) {
+      const formattedButtons =
+        typeof buttons[0] === "string"
+          ? buttons.slice(0, 3).map((label, index) => ({
+              type: "reply",
+              reply: {
+                id: `btn_${index + 1}_${label.toLowerCase().replace(/\s+/g, "_")}`,
+                title: label,
+              },
+            }))
+          : buttons.slice(0, 3); // already formatted
+
       payload = {
         messaging_product: "whatsapp",
         to,
@@ -45,13 +56,7 @@ export async function sendWhatsappMessage({ to, text, projectId, buttons = [] })
             text: text,
           },
           action: {
-            buttons: buttons.slice(0, 3).map((label, index) => ({
-              type: "reply",
-              reply: {
-                id: `btn_${index + 1}_${label.toLowerCase().replace(/\s+/g, "_")}`,
-                title: label,
-              },
-            })),
+            buttons: formattedButtons,
           },
         },
       };
