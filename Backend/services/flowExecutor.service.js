@@ -1,7 +1,7 @@
 import projectModel from "../models/project.model.js";
 import redisClient from "./redis.service.js";
 import generateReply from "./gptService.js";
-import {sendWhatsappMessage} from "./whatsapp.service.js";
+import { sendWhatsappMessage } from "./whatsapp.service.js";
 
 // Main function called by the webhook controller
 export async function processMessage({
@@ -35,7 +35,7 @@ export async function processMessage({
 }
 
 async function executeNode(nodeId, context) {
-  const {fileTree, userStateKey} = context;
+  const { fileTree, userStateKey } = context;
   const node = fileTree.nodes.find((n) => n.id === nodeId);
   if (!node) {
     console.error(`Node with ID ${nodeId} not found.`);
@@ -91,7 +91,7 @@ async function executeNode(nodeId, context) {
       }
       break;
 
-          case "button":
+    case "buttons":
       const buttonText = node.data?.properties?.message || "Choose an option:";
       const buttons = node.data?.properties?.buttons || [];
 
@@ -112,7 +112,6 @@ async function executeNode(nodeId, context) {
 
       // Wait for user's reply
       break;
-
 
     case "end":
       console.log("Flow ended by end node.");
