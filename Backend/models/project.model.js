@@ -9,9 +9,9 @@ const nodeSchema = new mongoose.Schema(
       enum: [
         "start",
         "message",
-        "condition",
+        "keywordMatch",
         "buttons",
-        // "api",
+        "apiCall",
         // "delay",
         // "random",
         // "goto",

@@ -20,7 +20,7 @@ import {
 const nodeTypes = {
   start: TriggerUserMessage,
   // TriggerNewChat: TriggerNewChat,
-  condition: ConditionKeyword,
+  keywordMatch: ConditionKeyword,
   // ConditionVariable: ConditionVariable,
   message: ActionSendText,
   buttons: ActionButtons,
@@ -28,7 +28,7 @@ const nodeTypes = {
   // ActionQuickReply: ActionQuickReply,
   // ActionDelay: ActionDelay,
   // ActionSetVariable: ActionSetVariable,
-  // ActionApiCall: ActionApiCall,
+  apiCall: ActionApiCall,
   // ControlGoto: ControlGoto,
   end: ControlEndFlow,
   // ConditionInputAsk: InputAsk,
