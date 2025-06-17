@@ -2,23 +2,19 @@ import { Router } from "express";
 import * as userController from "../controllers/user.controller.js";
 import { body } from "express-validator";
 import * as authMiddleware from "../middleware/auth.middleware.js";
+import { strongPasswordChecker } from "../validators/strongPasswordChecker.js";
 
 const router = Router();
 router.post(
   "/register",
   body("email").isEmail().withMessage("Email must be a valid email address"),
-  body("password")
-    .isLength({ min: 3 })
-    .withMessage("Password must be at least 3 characters long"),
+  strongPasswordChecker("password"),
   userController.createUserController
 );
 
 router.post(
   "/login",
   body("email").isEmail().withMessage("Email must be a valid email address"),
-  body("password")
-    .isLength({ min: 3 })
-    .withMessage("Password must be at least 3 characters long"),
   userController.loginController
 );
 
@@ -49,14 +45,8 @@ router.post(
 router.post(
   "/reset-password",
   body("email").isEmail().withMessage("Email must be valid"),
-  body("newPassword")
-    .isLength({ min: 8 }).withMessage("Password must be at least 8 characters long")
-    .matches(/[a-z]/).withMessage("Password must contain at least one lowercase letter")
-    .matches(/[A-Z]/).withMessage("Password must contain at least one uppercase letter")
-    .matches(/[0-9]/).withMessage("Password must contain at least one number")
-    .matches(/[@$!%*?&]/).withMessage("Password must contain at least one special character (@$!%*?&)"),
+  strongPasswordChecker("newPassword"),
   userController.resetPasswordController
 );
-
 
 export default router;
