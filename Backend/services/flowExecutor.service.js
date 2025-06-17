@@ -11,19 +11,39 @@ export async function processMessage({
 }) {
   const userStateKey = `flow-state:${senderWaPhoneNo}:${projectId}`;
 
-  // Check if waiting for a button reply
-  const awaiting = await redisClient.get(`${userStateKey}:awaitingButtonResponse`);
+  const fileTree = await getProjectFileTree(projectId);
+  if (!fileTree) return;
+
+  // Check if awaiting button response
+  let awaiting;
+  try {
+    const awaitingStr = await redisClient.get(`${userStateKey}:awaitingButtonResponse`);
+    if (awaitingStr) awaiting = JSON.parse(awaitingStr);
+  } catch (error) {
+    console.error("Redis read error:", error);
+  }
+
   if (awaiting) {
-    const { nodeId, buttons } = JSON.parse(awaiting);
+    const { nodeId, buttons } = awaiting;
     const cleanedInput = messageText.trim().toLowerCase();
 
-    if (buttons.includes(cleanedInput)) {
-      const fileTree = await getProjectFileTree(projectId);
-      const nextNodeId = findNextNode(nodeId, fileTree.edges, cleanedInput.replace(/\s+/g, "_"));
+    const matchedLabel = buttons.find(
+      (btn) => btn.trim().toLowerCase() === cleanedInput
+    );
+
+    if (matchedLabel) {
+      const normalizedLabel = matchedLabel.toLowerCase().replace(/\s+/g, "_");
+      const nextNodeId = findNextNode(nodeId, fileTree.edges, normalizedLabel);
 
       if (nextNodeId) {
-        await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
-        await redisClient.del(`${userStateKey}:awaitingButtonResponse`);
+        try {
+          await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
+          await redisClient.del(`${userStateKey}:awaitingButtonResponse`);
+          await redisClient.del(`${userStateKey}:buttonInvalidCount`);
+        } catch (err) {
+          console.error("Redis error while setting nextNodeId:", err);
+        }
+
         await executeNode(nextNodeId, {
           projectId,
           senderWaPhoneNo,
@@ -33,28 +53,73 @@ export async function processMessage({
         });
         return;
       }
-    }
+    } else {
+      // Handle invalid response with retry tracking
+      const invalidCountKey = `${userStateKey}:buttonInvalidCount`;
+      let invalidCount = 0;
+      try {
+        const countStr = await redisClient.get(invalidCountKey);
+        invalidCount = countStr ? parseInt(countStr, 10) : 0;
+      } catch (err) {
+        console.error("Error reading invalid count from Redis:", err);
+      }
 
-    // Invalid button input
-    await sendWhatsappMessage({
-      to: senderWaPhoneNo,
-      text: "Invalid response. Please choose one of the buttons.",
-      projectId,
-    });
-    return;
+      invalidCount += 1;
+
+      if (invalidCount >= 3) {
+        console.warn(`User ${senderWaPhoneNo} exceeded invalid attempts. Ending flow.`);
+
+        await redisClient.del(userStateKey);
+        await redisClient.del(`${userStateKey}:awaitingButtonResponse`);
+        await redisClient.del(invalidCountKey);
+
+        const endNode = fileTree.nodes.find((n) => n.type === "end");
+        if (endNode) {
+          await executeNode(endNode.id, {
+            projectId,
+            senderWaPhoneNo,
+            messageText,
+            fileTree,
+            userStateKey,
+          });
+        } else {
+          await sendWhatsappMessage({
+            to: senderWaPhoneNo,
+            text: "Too many invalid responses. Ending conversation.",
+            projectId,
+          });
+        }
+
+        return;
+      }
+
+      try {
+        await redisClient.set(invalidCountKey, invalidCount.toString(), "EX", 3600);
+      } catch (err) {
+        console.error("Error saving invalid count to Redis:", err);
+      }
+
+      await sendWhatsappMessage({
+        to: senderWaPhoneNo,
+        text: `Invalid response. Please choose one of the buttons. (${invalidCount}/3 attempts used)`,
+        projectId,
+      });
+      return;
+    }
   }
 
-  // Start or continue flow normally
-  const fileTree = await getProjectFileTree(projectId);
-  if (!fileTree) return;
-
-  let currentNodeId = await redisClient.get(userStateKey);
+  // Start or continue normal flow
+  let currentNodeId;
+  try {
+    currentNodeId = await redisClient.get(userStateKey);
+  } catch (err) {
+    console.error("Redis error while getting currentNodeId:", err);
+  }
 
   if (!currentNodeId) {
-    // If no state, find the starting node
     const startNode = fileTree.nodes.find((node) => node.type === "start");
     if (!startNode) {
-      console.log("No start node found for this flow.");
+      console.error("No start node found.");
       return;
     }
     currentNodeId = startNode.id;
@@ -69,6 +134,7 @@ export async function processMessage({
   });
 }
 
+// Execute a node
 async function executeNode(nodeId, context) {
   const { fileTree, userStateKey } = context;
   const node = fileTree.nodes.find((n) => n.id === nodeId);
@@ -77,6 +143,7 @@ async function executeNode(nodeId, context) {
     await redisClient.del(userStateKey);
     return;
   }
+
   console.log(`Executing node ${node.id} of type ${node.type}`);
 
   const quickReply = node.data?.properties?.quickReply;
@@ -109,16 +176,19 @@ async function executeNode(nodeId, context) {
       const keywords = (node.data?.properties?.keywords || "")
         .split(",")
         .map((k) => k.trim().toLowerCase());
+
       const matches = keywords.some((k) =>
         context.messageText.toLowerCase().includes(k)
       );
+
       nextNodeId = findNextNode(
         node.id,
         fileTree.edges,
         matches ? "true" : "false"
       );
+
       if (!nextNodeId) {
-        console.log("No matching condition path. Ending flow.");
+        console.warn("No matching keyword edge. Ending flow.");
         await redisClient.del(userStateKey);
         return;
       }
@@ -128,7 +198,7 @@ async function executeNode(nodeId, context) {
       const buttonText = node.data?.properties?.message || "Choose an option:";
       const buttons = node.data?.properties?.buttons || [];
 
-      const formattedButtons = buttons.map((btn, index) => ({
+      const formattedButtons = buttons.map((btn) => ({
         type: "reply",
         reply: {
           id: btn.toLowerCase().replace(/\s+/g, "_"),
@@ -143,16 +213,20 @@ async function executeNode(nodeId, context) {
         buttons: formattedButtons,
       });
 
-      // Store expected *visible* button titles in lowercase
-      await redisClient.set(
-        `${userStateKey}:awaitingButtonResponse`,
-        JSON.stringify({
-          nodeId: node.id,
-          buttons: buttons.map((btn) => btn.trim().toLowerCase()),
-        }),
-        "EX",
-        3600
-      );
+      try {
+        await redisClient.set(
+          `${userStateKey}:awaitingButtonResponse`,
+          JSON.stringify({
+            nodeId: node.id,
+            buttons: buttons.map((btn) => btn.trim().toLowerCase()),
+          }),
+          "EX",
+          3600
+        );
+        await redisClient.del(`${userStateKey}:buttonInvalidCount`);
+      } catch (err) {
+        console.error("Redis error while setting button state:", err);
+      }
       return;
 
     case "end":
@@ -161,41 +235,48 @@ async function executeNode(nodeId, context) {
       return;
 
     default:
-      console.log(`Node type "${node.type}" not implemented yet.`);
-      nextNodeId = findNextNode(node.id, fileTree.edges);
-      break;
+      console.warn(`Unsupported node type: ${node.type}`);
+      await sendWhatsappMessage({
+        to: context.senderWaPhoneNo,
+        text: "Something went wrong. Please try again later.",
+        projectId: context.projectId,
+      });
+      await redisClient.del(userStateKey);
+      return;
   }
 
   const waitForReply = node.data?.properties?.waitForUserReply === true;
 
   if (nextNodeId) {
-    await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
+    try {
+      await redisClient.set(userStateKey, nextNodeId, "EX", 3600);
+    } catch (err) {
+      console.error("Redis error while setting next node:", err);
+    }
 
     if (!waitForReply) {
       await executeNode(nextNodeId, context);
     } else {
-      console.log(
-        `Waiting for user reply before continuing from node ${node.id}`
-      );
+      console.log(`Waiting for user reply before continuing from node ${node.id}`);
     }
   } else {
-    console.log(
-      `Flow ended for user ${context.senderWaPhoneNo}. No next node.`
-    );
+    console.log(`Flow ended. No next node from ${node.id}.`);
     await redisClient.del(userStateKey);
   }
 }
 
+// Fetch fileTree from DB
 async function getProjectFileTree(projectId) {
   try {
     const project = await projectModel.findById(projectId).select("fileTree");
-    return project ? project.fileTree : null;
+    return project?.fileTree || null;
   } catch (error) {
     console.error("Error fetching project fileTree:", error);
     return null;
   }
 }
 
+// Find next node from edge based on label
 function findNextNode(sourceNodeId, edges, conditionLabel = null) {
   if (conditionLabel) {
     return (
