@@ -72,7 +72,7 @@ async function executeNode(nodeId, context) {
       nextNodeId = findNextNode(node.id, fileTree.edges);
       break;
 
-    case "condition":
+    case "keywordMatch":
       const keywords = (node.data?.properties?.keywords || "")
         .split(",")
         .map((k) => k.trim().toLowerCase());
@@ -90,6 +90,29 @@ async function executeNode(nodeId, context) {
         return;
       }
       break;
+
+          case "button":
+      const buttonText = node.data?.properties?.message || "Choose an option:";
+      const buttons = node.data?.properties?.buttons || [];
+
+      const formattedButtons = buttons.map((btn) => ({
+        type: "reply",
+        reply: {
+          id: btn.toLowerCase().replace(/\s+/g, "_"),
+          title: btn,
+        },
+      }));
+
+      await sendWhatsappMessage({
+        to: context.senderWaPhoneNo,
+        text: buttonText,
+        projectId: context.projectId,
+        buttons: formattedButtons,
+      });
+
+      // Wait for user's reply
+      break;
+
 
     case "end":
       console.log("Flow ended by end node.");
