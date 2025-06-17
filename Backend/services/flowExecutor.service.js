@@ -8,6 +8,7 @@ export async function processMessage({
   projectId,
   senderWaPhoneNo,
   messageText,
+  buttonReplyId, // 👈 NEW: support for button id
 }) {
   const userStateKey = `flow-state:${senderWaPhoneNo}:${projectId}`;
 
@@ -25,11 +26,15 @@ export async function processMessage({
 
   if (awaiting) {
     const { nodeId, buttons } = awaiting;
-    const cleanedInput = messageText.trim().toLowerCase();
+    const cleanedInput = (buttonReplyId || messageText || "").trim().toLowerCase();
 
-    const matchedLabel = buttons.find(
-      (btn) => btn.trim().toLowerCase() === cleanedInput
-    );
+    const matchedLabel = buttons.find((btn, index) => {
+      const idMatch = `btn_${index + 1}_${btn.toLowerCase().replace(/\s+/g, "_")}`;
+      return (
+        cleanedInput === btn.trim().toLowerCase() ||
+        cleanedInput === idMatch
+      );
+    });
 
     if (matchedLabel) {
       const normalizedLabel = matchedLabel.toLowerCase().replace(/\s+/g, "_");
@@ -54,7 +59,6 @@ export async function processMessage({
         return;
       }
     } else {
-      // Handle invalid response with retry tracking
       const invalidCountKey = `${userStateKey}:buttonInvalidCount`;
       let invalidCount = 0;
       try {
@@ -198,10 +202,10 @@ async function executeNode(nodeId, context) {
       const buttonText = node.data?.properties?.message || "Choose an option:";
       const buttons = node.data?.properties?.buttons || [];
 
-      const formattedButtons = buttons.map((btn) => ({
+      const formattedButtons = buttons.map((btn, index) => ({
         type: "reply",
         reply: {
-          id: btn.toLowerCase().replace(/\s+/g, "_"),
+          id: `btn_${index + 1}_${btn.toLowerCase().replace(/\s+/g, "_")}`,
           title: btn,
         },
       }));
