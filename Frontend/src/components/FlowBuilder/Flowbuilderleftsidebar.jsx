@@ -9,11 +9,14 @@ export default function FlowBuilderLeftSidebar({ onAddNode }) {
   );
 
   const ConditionNodes = Object.keys(nodeTypes).filter(
-    (key) => key.startsWith("condition") || key.startsWith("end")
+    (key) => key.startsWith("keywordMatch") || key.startsWith("end")
   );
 
   const ActionNodes = Object.keys(nodeTypes).filter(
-    (key) => key.startsWith("message") || key.startsWith("buttons")
+    (key) =>
+      key.startsWith("message") ||
+      key.startsWith("buttons") ||
+      key.startsWith("apiCall")
   );
 
   return (

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Proportions, Trash2 } from "lucide-react";
-import { getInitialFields } from "../FlowBuilder/HelperFunctions"; // make sure it's imported
-import { NodeFieldRenderer } from "../FlowBuilder/HelperFunctions";
+import { Trash2 } from "lucide-react";
+import {
+  getInitialFields,
+  NodeFieldRenderer,
+} from "../FlowBuilder/HelperFunctions";
 
 function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
   if (!node) return null;
@@ -24,6 +26,7 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
   };
 
   const handleSave = () => {
+    console.log("Saving node with formData:", formData);
     onSave({
       ...node,
       data: {
@@ -36,52 +39,44 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
 
   return (
     <div
-      className="inset-0 absolute bg-opacity-30 backdrop-grayscale-75 z-50 flex justify-center items-center"
+      className="absolute inset-0 bg-opacity-30 z-50 flex justify-end items-end p-6"
       onClick={onClose}
     >
+      <div className="absolute inset-0 bg-opacity-30 backdrop-grayscale-75 z-0"></div>
       <div
-        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside dialog
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white p-6 rounded-lg shadow-lg shadow-indigo-900 w-[500px] max-h-[90vh] overflow-y-auto relative animate-slide-in-right"
       >
-        <div className="absolute bottom-6 right-6">
-          <div className="bg-white p-6 rounded-lg shadow-lg shadow-indigo-900 w-96 relative animate-slide-in-right">
-            <button
-              onClick={() => {
-                onDelete(node.id);
-                onClose();
-              }}
-              className="absolute top-4 right-4 text-red-500 hover:text-red-700"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+        <button
+          onClick={() => {
+            onDelete(node.id);
+            onClose();
+          }}
+          className="absolute top-4 right-4 text-red-500 hover:text-red-700"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
 
-            <h2 className="text-lg font-bold mb-4">
-              Edit Node: {node.data.label}
-            </h2>
-            <NodeFieldRenderer formData={formData} onChange={handleChange} />
+        <h2 className="text-lg font-bold mb-4">Edit Node: {node.data.label}</h2>
 
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Save
-              </button>
-            </div>
-          </div>
+        <NodeFieldRenderer formData={formData} onChange={handleChange} />
+
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Save
+          </button>
         </div>
-        {/* Dialog content */}
       </div>
     </div>
-
-    // <div className="fixed inset-0 bg-black bg-opacity-30 z-50">
-
-    // </div>
   );
 }
 
