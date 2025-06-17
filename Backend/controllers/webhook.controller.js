@@ -1,5 +1,5 @@
 import projectModel from "../models/project.model.js";
-import {processMessage} from "../services/flowExecutor.service.js";
+import { processMessage } from "../services/flowExecutor.service.js";
 
 // Webhook verification (GET /webhook)
 export const verifyWebhook = (req, res) => {
@@ -31,8 +31,8 @@ export const handleIncomingMessage = async (req, res) => {
     const phoneNumberId = change?.metadata?.phone_number_id;
     const message = change?.messages?.[0];
 
-    if (!phoneNumberId || !message || message.type !== "text") {
-      return res.sendStatus(200); // Ignore unsupported message types
+    if (!phoneNumberId || !message || !message.from) {
+      return res.sendStatus(200); // Ignore unsupported messages
     }
 
     const project = await projectModel.findOne({
@@ -46,12 +46,16 @@ export const handleIncomingMessage = async (req, res) => {
     }
 
     const from = message.from;
-    const text = message.text.body;
 
+const messageText = message?.text?.body || "";
+const buttonReplyId = message?.interactive?.button_reply?.id || "";
+
+    // Send both text and button id to the processor
     await processMessage({
       projectId: project._id,
       senderWaPhoneNo: from,
-      messageText: text,
+      messageText,
+      buttonReplyId,
     });
 
     res.sendStatus(200);
