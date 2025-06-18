@@ -49,7 +49,7 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
     (params) => {
       const sourceNode = nodes.find((node) => node.id === params.source);
 
-      if (sourceNode?.type === "condition") {
+      if (sourceNode?.type === "keywordMatch") {
         const usedLabels = edges
           .filter((e) => e.source === params.source)
           .map((e) => (e.label || e.data?.label)?.toLowerCase());

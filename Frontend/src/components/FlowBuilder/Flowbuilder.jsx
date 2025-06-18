@@ -17,7 +17,7 @@ import {
   getNodeLabel,
   getNodeCategory,
   getInitialFields,
-} from "../Nodes/Node-config";
+} from "../Nodes/node-config";
 
 function FlowBuilder() {
   const { id: projectId } = useParams();
