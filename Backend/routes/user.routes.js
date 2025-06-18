@@ -18,6 +18,12 @@ router.post(
   userController.loginController
 );
 
+router.post(
+  "/google-login",
+  body("idToken").notEmpty().withMessage("ID Token is required"),
+  userController.googleLoginController
+);
+
 router.get(
   "/profile",
   authMiddleware.authUser,
