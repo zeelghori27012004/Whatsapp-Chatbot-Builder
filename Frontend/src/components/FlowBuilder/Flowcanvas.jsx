@@ -192,9 +192,6 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
         onNodeClick={handleNodeClick}
         onEdgeClick={handleEdgeClick}
         fitView
-        panOnDrag={false}
-        panOnScroll={true}
-        selectionOnDrag={true}
       >
         <Background color="#000" gap="15" />
         <Controls />
