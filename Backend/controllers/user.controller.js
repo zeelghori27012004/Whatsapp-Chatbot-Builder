@@ -5,6 +5,52 @@ import redisClient from '../services/redis.service.js';
 import crypto from 'crypto';
 import { sendEmail } from '../services/email.Service.js';
 import bcrypt from 'bcrypt';
+import { OAuth2Client } from 'google-auth-library';
+
+export const googleLoginController = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return res.status(400).json({ message: "ID token is required" });
+
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const {
+      sub: googleId,
+      email,
+      name: fullname,
+      email_verified,
+    } = payload;
+
+    if (!email_verified) return res.status(403).json({ message: "Email not verified by Google" });
+
+    let user = await userModel.findOne({ email });
+
+    if (!user) {
+      user = await userModel.create({
+        fullname,
+        email,
+        phoneNumber: null,
+        password: null,
+        isAdmin: false,
+        googleAuth: true,
+        googleId,
+      });
+    }
+
+    const token = user.generateJWT();
+    delete user._doc.password;
+
+    res.status(200).json({ user, token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Google login failed' });
+  }
+};
 
 export const createUserController = async (req, res) => {
   const errors = validationResult(req);
