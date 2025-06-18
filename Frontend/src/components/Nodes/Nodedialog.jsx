@@ -1,32 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
-import {
-  getInitialFields,
-  NodeFieldRenderer,
-} from "../FlowBuilder/HelperFunctions";
+import { NodeFieldRenderer } from "./NodeFieldRenderer";
+import { getInitialFields, getNodeCategory } from "./node-config";
 
 function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
   if (!node) return null;
 
+  const nodeType = getNodeCategory(node.type);
+
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    const initialFields = getInitialFields(node.type) || {};
+    const initialFields = getInitialFields(nodeType) || {};
     const existing = node.data?.properties || {};
+
     const filteredExisting = Object.fromEntries(
-      Object.entries(existing).filter(
-        ([key]) => key !== "fields" && key !== "isSelected"
-      )
+      Object.entries(existing).filter(([key]) => key === "waitForUserReply")
     );
     setFormData({ ...initialFields, ...filteredExisting });
-  }, [node]);
+  }, [node, nodeType]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
-    console.log("Saving node with formData:", formData);
     onSave({
       ...node,
       data: {
@@ -52,14 +50,18 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
             onDelete(node.id);
             onClose();
           }}
-          className="absolute top-4 right-4 text-red-500 hover:text-red-700"
+          className="absolute rounded-sm p-1 m-1 top-4 right-4 border-4 border-red- text-white bg-red-500 hover:bg-red-900"
         >
-          <Trash2 className="w-5 h-5" />
+          <Trash2 className="w-6 h-6" />
         </button>
 
         <h2 className="text-lg font-bold mb-4">Edit Node: {node.data.label}</h2>
 
-        <NodeFieldRenderer formData={formData} onChange={handleChange} />
+        <NodeFieldRenderer
+          nodeType={nodeType}
+          formData={formData}
+          onChange={handleChange}
+        />
 
         <div className="flex justify-end gap-2 mt-4">
           <button
