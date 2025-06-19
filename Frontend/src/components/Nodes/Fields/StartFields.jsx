@@ -11,6 +11,7 @@ export function StartFields({ formData, onChange }) {
         formData={formData}
         onChange={onChange}
         label={"Quick Reply"}
+        fieldKey="quickReply"
         showVariableDropdown={true}
       />
       <BooleanField

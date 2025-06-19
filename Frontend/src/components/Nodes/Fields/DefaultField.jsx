@@ -17,10 +17,7 @@ export function DefaultField({
 
   return (
     <div className="mb-4">
-      <label
-        className="text-sm font-medium capitalize block mb-1"
-        label="{displayLabel}"
-      >
+      <label className="text-sm font-medium capitalize block mb-1">
         {displayLabel}
       </label>
 
@@ -30,7 +27,6 @@ export function DefaultField({
       <div className="flex gap-2 items-center px-2 border border-gray-300 rounded-md">
         <input
           type="text"
-          id={displayLabel}
           value={formData[fieldKey] ?? ""}
           onChange={(e) => onChange(fieldKey, e.target.value)}
           className="h-10 w-full "

@@ -16,7 +16,7 @@ const FIELD_RENDERER_MAP = {
   keywordMatch: KeywordMatchFields,
   apiCall: ApiCallFields,
   askaQuestion: AskAQuestionFields,
-  end: (props) => <DefaultField {...props} fieldKey="chat end message" />,
+  end: (props) => <DefaultField {...props} fieldKey="quickReply" />,
 };
 
 export function NodeFieldRenderer({ nodeType, formData, onChange }) {
