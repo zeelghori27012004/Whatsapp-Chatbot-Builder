@@ -1,4 +1,6 @@
 import { BooleanField } from "./BooleanField";
+// import { useVariableContext } from "../../../context/Variable.context";
+// import { useEffect } from "react";
 export function AskAQuestionFields({ formData, onChange }) {
   // const handleCheckboxChange = (e) => {
   //   onChange(
@@ -6,6 +8,12 @@ export function AskAQuestionFields({ formData, onChange }) {
   //     e.target.checked ? "true" : "false"
   //   );
   // };
+  // const { addVariable } = useVariableContext();
+  // useEffect(() => {
+  //   if (formData.propertyName) {
+  //     addVariable(formData.propertyName);
+  //   }
+  // }, [formData.propertyName]);
 
   return (
     <div className="space-y-4">
