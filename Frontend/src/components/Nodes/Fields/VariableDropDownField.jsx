@@ -1,43 +1,58 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useVariableContext } from "../../../context/Variable.context";
+import { Variable } from "lucide-react";
+import { useRef } from "react";
 
 export default function VariableInsertDropdown({ onInsert }) {
   const { variables } = useVariableContext();
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   if (!variables.length) return null;
 
-  const handleSelect = (e) => {
-    const selected = e.target.value;
-    if (selected) {
-      onInsert(`{{${selected}}}`);
-      setShowDropdown(false); // auto-close after insert
-    }
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleInsert = (variable) => {
+    onInsert(`{ ${variable} }`);
+    setShowDropdown(false); // auto-close
   };
 
+  // className={`hover:opacity-100 w-full h-full ${
+  //  showDropdown ? "opacity-100" : "opacity-50"
+  //}`
   return (
-    <div className="mb-2 relative inline-block">
+    <div className="relative inline-block rounded-full" ref={dropdownRef}>
       <button
         type="button"
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="text-sm px-2 py-1 border border-gray-400 rounded-md bg-white hover:bg-gray-100 transition"
+        onClick={() => setShowDropdown((prev) => !prev)}
+        className={`text-sm w-max h-max px-2 py-1 border-gray-400 rounded-full bg-white hover:bg-gray-300 hover:opacity-100 opacity-50 transition-all duration-300 ${
+          showDropdown ? "opacity-100" : "opacity-50"
+        }`}
       >
-        + Variable
+        <Variable size={25} />
       </button>
 
       {showDropdown && (
-        <select
-          onChange={handleSelect}
-          defaultValue=""
-          className="absolute z-10 mt-1 w-40 px-2 py-1 border rounded-md bg-white shadow-md"
-        >
-          <option value="">Select variable</option>
+        <ul className="absolute z-10 mt-1 right-0 w-40 bg-white border border-gray-300 rounded-md shadow-lg text-sm">
           {variables.map((v, i) => (
-            <option key={i} value={v}>
-              {`{{${v}}}`}
-            </option>
+            <li
+              key={i}
+              onClick={() => handleInsert(v)}
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+            >
+              {`{ ${v} }`}
+            </li>
           ))}
-        </select>
+        </ul>
       )}
     </div>
   );
