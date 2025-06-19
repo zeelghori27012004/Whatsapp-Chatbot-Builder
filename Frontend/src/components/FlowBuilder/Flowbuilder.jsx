@@ -18,6 +18,7 @@ import {
   getNodeCategory,
   getInitialFields,
 } from "../Nodes/node-config";
+import { VariableProvider } from "../../context/Variable.context";
 
 function FlowBuilder() {
   const { id: projectId } = useParams();
@@ -98,7 +99,6 @@ function FlowBuilder() {
         toast.error("Failed to load flow.");
       }
     };
-
     fetchProjectFlow();
   }, [projectId]);
 
@@ -142,12 +142,14 @@ function FlowBuilder() {
           bottom: 0,
         }}
       >
-        <FlowCanvas
-          nodes={nodes}
-          setNodes={setNodes}
-          edges={edges}
-          setEdges={setEdges}
-        />
+        <VariableProvider>
+          <FlowCanvas
+            nodes={nodes}
+            setNodes={setNodes}
+            edges={edges}
+            setEdges={setEdges}
+          />
+        </VariableProvider>
       </div>
 
       <FlowBuilderRightSidebar onReset={onReset} onSave={saveFlow} />
