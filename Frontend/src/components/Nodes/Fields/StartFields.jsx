@@ -4,7 +4,7 @@ import { DefaultField } from "./DefaultField";
 import { BooleanField } from "./BooleanField";
 import { ArrayInput } from "./ArrayInput";
 import { X } from "lucide-react";
-export function StartFields({ formData, onChange }) {
+export function StartFields({ formData, onChange, errors }) {
   return (
     <>
       <DefaultField
@@ -13,6 +13,8 @@ export function StartFields({ formData, onChange }) {
         label={"Quick Reply"}
         fieldKey="quickReply"
         showVariableDropdown={true}
+        errors={errors}
+        required={true}
       />
       <BooleanField
         formData={formData}

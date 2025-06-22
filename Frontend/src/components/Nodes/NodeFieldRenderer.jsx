@@ -19,7 +19,7 @@ const FIELD_RENDERER_MAP = {
   end: (props) => <DefaultField {...props} fieldKey="quickReply" />,
 };
 
-export function NodeFieldRenderer({ nodeType, formData, onChange }) {
+export function NodeFieldRenderer({ nodeType, formData, onChange, errors }) {
   // Find the specific component for the node type.
   const FieldComponent = FIELD_RENDERER_MAP[nodeType];
 
@@ -31,5 +31,5 @@ export function NodeFieldRenderer({ nodeType, formData, onChange }) {
     );
   }
 
-  return <FieldComponent formData={formData} onChange={onChange} />;
+  return <FieldComponent formData={formData} onChange={onChange} errors={errors} />;
 }

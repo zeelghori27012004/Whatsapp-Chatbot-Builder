@@ -9,6 +9,22 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
   const nodeType = getNodeCategory(node.type);
 
   const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+  const [showErrors, setShowErrors] = useState(false);
+
+  // Define required fields for each node type
+  const getRequiredFields = (type) => {
+    const requiredFieldsMap = {
+      start: ["quickReply"],
+      message: ["message"],
+      buttons: ["message", "buttons"],
+      keywordMatch: ["keywords"],
+      apiCall: ["requestName", "url"],
+      askaQuestion: ["question"],
+      end: []
+    };
+    return requiredFieldsMap[type] || [];
+  };
 
   useEffect(() => {
     const initialFields = getInitialFields(nodeType) || {};
@@ -24,9 +40,57 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const requiredFields = getRequiredFields(nodeType);
+    const newErrors = {};
+
+    requiredFields.forEach((field) => {
+      const value = formData[field];
+      
+      // Check for null, undefined, or empty string
+      if (!value || value === "") {
+        newErrors[field] = "Please fill the entry";
+        return;
+      }
+      
+      // Check for whitespace-only strings
+      if (typeof value === "string" && value.trim() === "") {
+        newErrors[field] = "Please fill the entry";
+        return;
+      }
+      
+      // Check for arrays
+      if (Array.isArray(value)) {
+        // Check if array is empty
+        if (value.length === 0) {
+          newErrors[field] = "Please fill the entry";
+          return;
+        }
+        
+        // Check if all items in array are empty or whitespace-only
+        if (value.every(item => !item || (typeof item === "string" && item.trim() === ""))) {
+          newErrors[field] = "Please fill the entry";
+          return;
+        }
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = () => {
+    if (!validateForm()) {
+      setShowErrors(true);
+      return;
+    }
+
     onSave({
       ...node,
       data: {
@@ -59,10 +123,22 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
 
         <h2 className="text-lg font-bold mb-4">Edit Node: {node.data.label}</h2>
 
+        {showErrors && Object.keys(errors).length > 0 && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <p className="font-medium">Please fix the following errors:</p>
+            <ul className="list-disc list-inside mt-1">
+              {Object.values(errors).map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <NodeFieldRenderer
           nodeType={nodeType}
           formData={formData}
           onChange={handleChange}
+          errors={errors}
         />
 
         <div className="flex justify-end gap-2 mt-4">
