@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
 import { NodeFieldRenderer } from "./NodeFieldRenderer";
-import { getInitialFields, getNodeCategory } from "./node-config";
+import { getInitialFields, getNodeCategory } from "./Node-config";
 
 function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
   if (!node) return null;
@@ -20,8 +20,8 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
       buttons: ["message", "buttons"],
       keywordMatch: ["keywords"],
       apiCall: ["requestName", "url"],
-      askaQuestion: ["question"],
-      end: []
+      askaQuestion: ["question", "propertyName"],
+      end: [],
     };
     return requiredFieldsMap[type] || [];
   };
@@ -52,19 +52,19 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
 
     requiredFields.forEach((field) => {
       const value = formData[field];
-      
+
       // Check for null, undefined, or empty string
       if (!value || value === "") {
         newErrors[field] = "Please fill the entry";
         return;
       }
-      
+
       // Check for whitespace-only strings
       if (typeof value === "string" && value.trim() === "") {
         newErrors[field] = "Please fill the entry";
         return;
       }
-      
+
       // Check for arrays
       if (Array.isArray(value)) {
         // Check if array is empty
@@ -72,9 +72,13 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
           newErrors[field] = "Please fill the entry";
           return;
         }
-        
+
         // Check if all items in array are empty or whitespace-only
-        if (value.every(item => !item || (typeof item === "string" && item.trim() === ""))) {
+        if (
+          value.every(
+            (item) => !item || (typeof item === "string" && item.trim() === "")
+          )
+        ) {
           newErrors[field] = "Please fill the entry";
           return;
         }

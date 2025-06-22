@@ -25,7 +25,9 @@ export function AskAQuestionFields({ formData, onChange, errors }) {
           type="text"
           value={formData.question || ""}
           onChange={(e) => onChange("question", e.target.value)}
-          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${errors?.question ? 'border-red-500' : ''}`}
+          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
+            errors?.question ? "border-red-500" : ""
+          }`}
           placeholder="Ask your question here"
         />
         {errors?.question && (
@@ -82,9 +84,14 @@ export function AskAQuestionFields({ formData, onChange, errors }) {
           type="text"
           value={formData.propertyName || ""}
           onChange={(e) => onChange("propertyName", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${
+            errors?.propertyName ? "border-red-500" : ""
+          }`}
           placeholder="e.g., user_email"
         />
+        {errors?.propertyName && (
+          <p className="text-red-500 text-sm mt-1">{errors.propertyName}</p>
+        )}
       </div>
 
       <BooleanField
