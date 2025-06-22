@@ -58,13 +58,15 @@ const AuthFields = ({ authType, formData, onChange }) => {
   return null;
 };
 
-export function ApiCallFields({ formData, onChange }) {
+export function ApiCallFields({ formData, onChange, errors }) {
   return (
     <>
       <DefaultField
         formData={formData}
         onChange={onChange}
         fieldKey="requestName"
+        errors={errors}
+        required={true}
       />
 
       <div className="mb-4">
@@ -89,6 +91,8 @@ export function ApiCallFields({ formData, onChange }) {
         onChange={onChange}
         fieldKey="url"
         label="URL"
+        errors={errors}
+        required={true}
       />
 
       {/* Authentication */}

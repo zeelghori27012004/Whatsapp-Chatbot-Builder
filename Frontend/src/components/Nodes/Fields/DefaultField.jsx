@@ -7,6 +7,8 @@ export function DefaultField({
   fieldKey,
   label,
   showVariableDropdown = true,
+  errors,
+  required = false,
 }) {
   const displayLabel = label || fieldKey.replace(/([a-z])([A-Z])/g, "$1 $2");
 
@@ -19,6 +21,7 @@ export function DefaultField({
     <div className="mb-4">
       <label className="text-sm font-medium capitalize block mb-1">
         {displayLabel}
+        {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
       {/* {showVariableDropdown && (
@@ -29,12 +32,15 @@ export function DefaultField({
           type="text"
           value={formData[fieldKey] ?? ""}
           onChange={(e) => onChange(fieldKey, e.target.value)}
-          className="h-10 w-full "
+          className={`h-10 w-full ${errors?.[fieldKey] ? 'border-red-500' : ''}`}
         />
         {showVariableDropdown && (
           <VariableInsertDropdown onInsert={handleVariableInsert} />
         )}
       </div>
+      {errors?.[fieldKey] && (
+        <p className="text-red-500 text-sm mt-1">{errors[fieldKey]}</p>
+      )}
     </div>
   );
 }
