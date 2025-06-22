@@ -32,20 +32,20 @@ export function getNodeCategory(type) {
 export const nodeFieldMap = {
   start: {
     quickReply: "",
-    waitForUserReply: false,
+    waitForReply: false,
   },
   message: {
     message: "",
-    waitForUserReply: false,
+    waitForReply: false,
   },
   buttons: {
     message: "",
     buttons: [""],
-    waitForUserReply: false,
+    waitForReply: false,
   },
   keywordMatch: {
     keywords: [""],
-    waitForUserReply: false,
+    waitForReply: false,
   },
   apiCall: {
     requestName: "",
@@ -57,7 +57,7 @@ export const nodeFieldMap = {
     password: "",
     bearerToken: "",
     accessToken: "",
-    waitForUserReply: false,
+    waitForReply: false,
   },
   askaQuestion: {
     question: "",
@@ -65,10 +65,10 @@ export const nodeFieldMap = {
     numberOfRepeats: "1",
     saveTheAnswerAsContactProperty: "false",
     propertyName: "",
-    waitForUserReply: false,
+    waitForReply: false,
   },
   end: {
-    waitForUserReply: false,
+    waitForReply: false,
   },
 };
 

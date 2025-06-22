@@ -1,7 +1,7 @@
 import { BooleanField } from "./BooleanField";
 // import { useVariableContext } from "../../../context/Variable.context";
 // import { useEffect } from "react";
-export function AskAQuestionFields({ formData, onChange }) {
+export function AskAQuestionFields({ formData, onChange, errors }) {
   // const handleCheckboxChange = (e) => {
   //   onChange(
   //     "saveTheAnswerAsContactProperty",
@@ -18,14 +18,19 @@ export function AskAQuestionFields({ formData, onChange }) {
   return (
     <div className="space-y-4">
       <div>
-        <label className="text-sm font-medium block mb-1">Question</label>
+        <label className="text-sm font-medium block mb-1">
+          Question <span className="text-red-500 ml-1">*</span>
+        </label>
         <input
           type="text"
           value={formData.question || ""}
           onChange={(e) => onChange("question", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className={`w-full px-3 py-2 border border-gray-300 rounded-md ${errors?.question ? 'border-red-500' : ''}`}
           placeholder="Ask your question here"
         />
+        {errors?.question && (
+          <p className="text-red-500 text-sm mt-1">{errors.question}</p>
+        )}
       </div>
 
       <div>

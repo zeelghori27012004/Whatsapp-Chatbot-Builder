@@ -2,45 +2,53 @@
 import { X } from "lucide-react";
 import { ArrayInput } from "./ArrayInput";
 import { BooleanField } from "./BooleanField";
-export function KeywordMatchFields({ formData, onChange }) {
+export function KeywordMatchFields({ formData, onChange, errors }) {
   return (
     <>
-      <ArrayInput
-        label="Keywords to Match"
-        items={formData.keywords || []}
-        onChange={(newKeywords) => onChange("keywords", newKeywords)}
-        newItemValue=""
-        addButtonLabel="Add Keyword"
-        maxItems={5}
-        minItems={1}
-        placeholder="Keyword"
-        renderItem={({
-          item,
-          index,
-          onChange,
-          onRemove,
-          isRemoveDisabled,
-          placeholder,
-        }) => (
-          <div key={index} className="flex items-center space-x-2">
-            <input
-              type="text"
-              value={item}
-              onChange={(e) => onChange(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
-              placeholder={placeholder}
-            />
-            <button
-              onClick={onRemove}
-              className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isRemoveDisabled}
-              title="Remove Keyword"
-            >
-              <X />
-            </button>
-          </div>
+      <div className="mb-4">
+        <label className="text-sm font-medium block mb-2">
+          Keywords to Match <span className="text-red-500 ml-1">*</span>
+        </label>
+        <ArrayInput
+          label="Keywords to Match"
+          items={formData.keywords || []}
+          onChange={(newKeywords) => onChange("keywords", newKeywords)}
+          newItemValue=""
+          addButtonLabel="Add Keyword"
+          maxItems={5}
+          minItems={1}
+          placeholder="Keyword"
+          renderItem={({
+            item,
+            index,
+            onChange,
+            onRemove,
+            isRemoveDisabled,
+            placeholder,
+          }) => (
+            <div key={index} className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={item}
+                onChange={(e) => onChange(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                placeholder={placeholder}
+              />
+              <button
+                onClick={onRemove}
+                className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isRemoveDisabled}
+                title="Remove Keyword"
+              >
+                <X />
+              </button>
+            </div>
+          )}
+        />
+        {errors?.keywords && (
+          <p className="text-red-500 text-sm mt-1">{errors.keywords}</p>
         )}
-      />
+      </div>
       <BooleanField
         formData={formData}
         onChange={onChange}
