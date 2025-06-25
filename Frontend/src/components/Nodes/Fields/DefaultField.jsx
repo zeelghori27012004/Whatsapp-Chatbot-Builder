@@ -27,12 +27,14 @@ export function DefaultField({
       {/* {showVariableDropdown && (
         <VariableInsertDropdown onInsert={handleVariableInsert} />
       )} */}
-      <div className="flex gap-2 items-center px-2 border border-gray-300 rounded-md">
+      <div className="flex items-center border border-gray-300 rounded-md">
         <input
           type="text"
           value={formData[fieldKey] ?? ""}
           onChange={(e) => onChange(fieldKey, e.target.value)}
-          className={`h-10 w-full ${errors?.[fieldKey] ? 'border-red-500' : ''}`}
+          className={`h-10 w-full ${
+            errors?.[fieldKey] ? "border-red-500" : ""
+          }`}
         />
         {showVariableDropdown && (
           <VariableInsertDropdown onInsert={handleVariableInsert} />

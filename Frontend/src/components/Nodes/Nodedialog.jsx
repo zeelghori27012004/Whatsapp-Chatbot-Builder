@@ -15,7 +15,7 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
   // Define required fields for each node type
   const getRequiredFields = (type) => {
     const requiredFieldsMap = {
-      start: ["quickReply"],
+      start: [],
       message: ["message"],
       buttons: ["message", "buttons"],
       keywordMatch: ["keywords"],
@@ -35,6 +35,7 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
         ([key]) => key !== "isSelected" && key !== "fields"
       )
     );
+
     setFormData({ ...initialFields, ...filteredExisting });
   }, [node, nodeType]);
 
@@ -113,7 +114,9 @@ function BaseNodeDialog({ node, onClose, onSave, onDelete }) {
       <div className="absolute inset-0 bg-opacity-30 backdrop-grayscale-75 z-0"></div>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white p-6 rounded-lg shadow-lg shadow-indigo-900 w-[500px] max-h-[90vh] overflow-y-auto relative animate-slide-in-right"
+        className={`bg-white p-6 rounded-lg shadow-lg shadow-indigo-900 max-h-[90vh] overflow-y-auto relative animate-slide-in-right ${
+          nodeType === "apiCall" ? "w-[1000px]" : "w-[500px]"
+        }`}
       >
         <button
           onClick={() => {

@@ -52,7 +52,7 @@ export function KeywordMatchFields({ formData, onChange, errors }) {
       <BooleanField
         formData={formData}
         onChange={onChange}
-        fieldKey="waitForReply"
+        fieldKey="waitForUserReply"
         label="Wait for User Reply"
       />
     </>

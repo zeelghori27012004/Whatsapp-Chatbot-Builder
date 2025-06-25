@@ -8,8 +8,6 @@ export default function VariableInsertDropdown({ onInsert }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  if (!variables.length) return null;
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -22,19 +20,21 @@ export default function VariableInsertDropdown({ onInsert }) {
   }, []);
 
   const handleInsert = (variable) => {
-    onInsert(`{ ${variable} }`);
+    onInsert(`{{ ${variable} }}`);
     setShowDropdown(false); // auto-close
   };
 
   // className={`hover:opacity-100 w-full h-full ${
   //  showDropdown ? "opacity-100" : "opacity-50"
   //}`
+
+  if (!variables.length) return null;
   return (
-    <div className="relative inline-block rounded-full" ref={dropdownRef}>
+    <div className="relative inline-block rounded-full p-1" ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setShowDropdown((prev) => !prev)}
-        className={`text-sm w-max h-max px-2 py-1 border-gray-400 rounded-full bg-white hover:bg-gray-300 hover:opacity-100 opacity-50 transition-all duration-300 ${
+        className={`text-sm w-max h-max px-2 py-1 border-gray-400 rounded-lg bg-white hover:bg-gray-300 hover:opacity-100 opacity-50 transition-all duration-300 ${
           showDropdown ? "opacity-100" : "opacity-50"
         }`}
       >
@@ -49,7 +49,7 @@ export default function VariableInsertDropdown({ onInsert }) {
               onClick={() => handleInsert(v)}
               className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
             >
-              {`{ ${v} }`}
+              {` ${v} `}
             </li>
           ))}
         </ul>

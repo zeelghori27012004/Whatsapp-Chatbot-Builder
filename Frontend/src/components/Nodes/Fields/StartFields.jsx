@@ -14,12 +14,12 @@ export function StartFields({ formData, onChange, errors }) {
         fieldKey="quickReply"
         showVariableDropdown={true}
         errors={errors}
-        required={true}
+        required={false}
       />
       <BooleanField
         formData={formData}
         onChange={onChange}
-        fieldKey="waitForReply"
+        fieldKey="waitForUserReply"
         label="Wait for user reply"
       />
     </>

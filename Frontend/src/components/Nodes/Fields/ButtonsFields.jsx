@@ -61,7 +61,7 @@ export function ButtonsFields({ formData, onChange, errors }) {
       <BooleanField
         formData={formData}
         onChange={onChange}
-        fieldKey="waitForReply"
+        fieldKey="waitForUserReply"
         label="Wait for user reply"
       />
     </>
