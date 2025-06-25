@@ -8,14 +8,22 @@ export const VariableProvider = ({ children }) => {
 
   const syncVariablesFromNodes = (nodes) => {
     const vars = nodes
-      .filter((n) => n.type === "askaQuestion")
+      .filter((n) => n.type === "askaQuestion" || n.type === "apiCall")
       .map((n) => n.data?.properties?.propertyName)
       .filter(Boolean);
     setVariables([...new Set(vars)]);
   };
 
+  const addVariable = (newVar) => {
+    if (newVar && !variables.includes(newVar)) {
+      setVariables((prev) => [...prev, newVar]);
+    }
+  };
+
   return (
-    <VariableContext.Provider value={{ variables, syncVariablesFromNodes }}>
+    <VariableContext.Provider
+      value={{ variables, syncVariablesFromNodes, addVariable }}
+    >
       {children}
     </VariableContext.Provider>
   );

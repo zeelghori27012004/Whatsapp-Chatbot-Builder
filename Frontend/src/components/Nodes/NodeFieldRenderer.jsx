@@ -3,7 +3,7 @@ import React from "react";
 import { DefaultField } from "./Fields/DefaultField";
 import { ButtonsFields } from "./Fields/ButtonsFields";
 import { KeywordMatchFields } from "./Fields/KeywordMatchFields";
-import { ApiCallFields } from "./Fields/ApiCallFields";
+import ApiCallFields from "./Fields/ApiCallFields";
 import { AskAQuestionFields } from "./Fields/AskAQuestionFields";
 import { MessageFields } from "./Fields/MessageFields";
 import { StartFields } from "./Fields/StartFields";
@@ -31,5 +31,7 @@ export function NodeFieldRenderer({ nodeType, formData, onChange, errors }) {
     );
   }
 
-  return <FieldComponent formData={formData} onChange={onChange} errors={errors} />;
+  return (
+    <FieldComponent formData={formData} onChange={onChange} errors={errors} />
+  );
 }
