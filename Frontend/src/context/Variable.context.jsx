@@ -8,7 +8,7 @@ export const VariableProvider = ({ children }) => {
 
   const syncVariablesFromNodes = (nodes) => {
     const vars = nodes
-      .filter((n) => n.type === "askaQuestion" || n.type === "apiCall")
+      .filter((n) => n.type === "askaQuestion" )
       .map((n) => n.data?.properties?.propertyName)
       .filter(Boolean);
     setVariables([...new Set(vars)]);

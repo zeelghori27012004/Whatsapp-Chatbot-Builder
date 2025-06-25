@@ -99,7 +99,7 @@ export default function ApiResponseViewer({
                     className="flex items-baseline group cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onFieldSelect?.(`${path}.${key}`, data[key]);
+                      onFieldSelect?.(`${path}.${key}`);
                     }}
                   >
                     <span className="text-red-700 mr-1 group-hover:underline">

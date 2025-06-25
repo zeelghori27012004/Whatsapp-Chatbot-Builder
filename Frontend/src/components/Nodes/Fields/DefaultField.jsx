@@ -24,25 +24,29 @@ export function DefaultField({
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
 
-      {/* {showVariableDropdown && (
-        <VariableInsertDropdown onInsert={handleVariableInsert} />
-      )} */}
-      <div className="flex items-center border border-gray-300 rounded-md">
+      <div
+        className={`flex items-center rounded-md border bg-white transition-colors ${
+          errors?.[fieldKey] ? "border-red-500" : "border-gray-300"
+        } focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500`}
+      >
         <input
           type="text"
           value={formData[fieldKey] ?? ""}
           onChange={(e) => onChange(fieldKey, e.target.value)}
-          className={`h-10 w-full ${
-            errors?.[fieldKey] ? "border-red-500" : ""
-          }`}
+          className="h-10 w-full flex-grow bg-transparent px-3 outline-none"
         />
+
         {showVariableDropdown && (
-          <VariableInsertDropdown onInsert={handleVariableInsert} />
+          <div className="flex-shrink-0">
+            <VariableInsertDropdown onInsert={handleVariableInsert} />
+          </div>
         )}
       </div>
+
       {errors?.[fieldKey] && (
         <p className="text-red-500 text-sm mt-1">{errors[fieldKey]}</p>
       )}
     </div>
   );
 }
+export default DefaultField;

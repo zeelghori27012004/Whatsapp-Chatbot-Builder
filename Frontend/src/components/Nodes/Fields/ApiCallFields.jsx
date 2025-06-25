@@ -7,6 +7,8 @@ import { useVariableContext } from "../../../context/Variable.context";
 export default function ApiCallFields({ formData, onChange, errors }) {
   const [apiResponse, setApiResponse] = useState(null);
   const [baseUrl, setBaseUrl] = useState("");
+  const [testVariables, setTestVariables] = useState({});
+
   const [selectedFields, setSelectedFields] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedPaths, setExpandedPaths] = useState(new Set());
@@ -15,13 +17,22 @@ export default function ApiCallFields({ formData, onChange, errors }) {
   useEffect(() => {
     if (formData.url) {
       try {
-        const urlObj = new URL(formData.url);
+        const urlObj = new URL(formData.url.replace(/\{\{(.*?)\}\}/g, "test")); // temp replace to make valid
         setBaseUrl(`${urlObj.protocol}//${urlObj.host}`);
-      } catch (e) {
+      } catch {
         setBaseUrl("");
       }
+
+      // Extract variables from {{variable}} format
+      const matches = [...formData.url.matchAll(/\{\{(.*?)\}\}/g)];
+      const vars = {};
+      matches.forEach(([_, key]) => {
+        vars[key] = testVariables[key] || "";
+      });
+      setTestVariables(vars);
     } else {
       setBaseUrl("");
+      setTestVariables({});
     }
   }, [formData.url]);
 
@@ -207,7 +218,6 @@ export default function ApiCallFields({ formData, onChange, errors }) {
 
                         const newField = {
                           path: newPath,
-                          value: value,
                           fullUrl: fullUrl,
                         };
 
@@ -266,8 +276,12 @@ export default function ApiCallFields({ formData, onChange, errors }) {
         options.body = JSON.stringify(JSON.parse(formData.body));
         headers["Content-Type"] = "application/json";
       }
+      let resolvedUrl = formData.url;
+      Object.entries(testVariables).forEach(([key, value]) => {
+        resolvedUrl = resolvedUrl.replaceAll(`{{${key}}}`, value);
+      });
 
-      const response = await fetch(formData.url, options);
+      const response = await fetch(resolvedUrl, options);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -324,6 +338,34 @@ export default function ApiCallFields({ formData, onChange, errors }) {
             errors={errors}
             required
           />
+          {Object.keys(testVariables).length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                Test Variable Values
+              </h4>
+              <div className="space-y-2">
+                {Object.entries(testVariables).map(([key, val]) => (
+                  <div key={key} className="flex items-center gap-2">
+                    <span className="text-sm w-1/3 font-mono bg-gray-100 px-2 py-1 rounded text-gray-800">
+                      {key}
+                    </span>
+                    <input
+                      type="text"
+                      value={val}
+                      onChange={(e) =>
+                        setTestVariables((prev) => ({
+                          ...prev,
+                          [key]: e.target.value,
+                        }))
+                      }
+                      className="flex-1 px-3 py-2 text-sm border rounded-md bg-gray-50 focus:bg-white"
+                      placeholder={`Test value for ${key}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {formData.method !== "GET" && (
             <DefaultField
@@ -442,32 +484,13 @@ export default function ApiCallFields({ formData, onChange, errors }) {
         {formData.selectedField && (
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h4 className="font-medium mb-3">Selected Resource</h4>
-            <div className="text-sm space-y-2">
+            <div className="text-sm">
               <div>
                 <span className="font-medium text-gray-600">Path:</span>{" "}
                 <span className="font-mono bg-gray-100 px-2 py-1 rounded">
                   {formData.selectedField.path.replace(/^\./, "")}
                 </span>
               </div>
-              <div>
-                <span className="font-medium text-gray-600">Value:</span>{" "}
-                <span className="font-mono bg-gray-100 px-2 py-1 rounded">
-                  {JSON.stringify(formData.selectedField.value)}
-                </span>
-              </div>
-              {formData.selectedField.fullUrl && (
-                <div>
-                  <span className="font-medium text-gray-600">URL:</span>{" "}
-                  <a
-                    href={formData.selectedField.fullUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline break-all"
-                  >
-                    {formData.selectedField.fullUrl}
-                  </a>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -490,7 +513,7 @@ export default function ApiCallFields({ formData, onChange, errors }) {
             apiResponse={apiResponse}
             isLoading={isLoading}
             onFieldSelect={(path, value) => {
-              const newField = { path, value };
+              const newField = { path };
               setSelectedFields((prev) => [...prev, newField]);
               onChange("selectedField", newField);
             }}
