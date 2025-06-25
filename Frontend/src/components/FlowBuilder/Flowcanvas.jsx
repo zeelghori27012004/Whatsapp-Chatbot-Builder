@@ -49,20 +49,7 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
     (params) => {
       const sourceNode = nodes.find((node) => node.id === params.source);
 
-      if (sourceNode?.type === "keywordMatch") {
-        const usedLabels = edges
-          .filter((e) => e.source === params.source)
-          .map((e) => (e.label || e.data?.label)?.toLowerCase());
-
-        const availableOptions = ["true", "false"].filter(
-          (opt) => !usedLabels.includes(opt)
-        );
-
-        setLabelChoice(availableOptions[0] || "true");
-        setAvailableLabels(availableOptions);
-        setPendingConnection(params);
-        setShowLabelPrompt(true);
-      } else if (sourceNode?.type === "buttons") {
+      if (sourceNode?.type === "buttons") {
         const buttonLabels = sourceNode.data?.properties?.buttons || [];
 
         const usedLabels = edges
@@ -74,6 +61,23 @@ function FlowCanvas({ nodes, setNodes, edges, setEdges }) {
         );
 
         setLabelChoice(availableOptions[0] || "");
+        setAvailableLabels(availableOptions);
+        setPendingConnection(params);
+        setShowLabelPrompt(true);
+      } else if (
+        sourceNode?.type === "askaQuestion" ||
+        sourceNode?.type === "apiCall" ||
+        sourceNode?.type === "keywordMatch"
+      ) {
+        const usedLabels = edges
+          .filter((e) => e.source === params.source)
+          .map((e) => e.label || e.data?.label);
+
+        const availableOptions = ["Success", "Failure"].filter(
+          (opt) => !usedLabels.includes(opt)
+        );
+
+        setLabelChoice(availableOptions[0] || "Success");
         setAvailableLabels(availableOptions);
         setPendingConnection(params);
         setShowLabelPrompt(true);

@@ -17,7 +17,7 @@ import {
   getNodeLabel,
   getNodeCategory,
   getInitialFields,
-} from "../Nodes/node-config";
+} from "../Nodes/Node-config";
 import { VariableProvider } from "../../context/Variable.context";
 
 function FlowBuilder() {
