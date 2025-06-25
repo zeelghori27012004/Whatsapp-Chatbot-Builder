@@ -8,6 +8,7 @@ import {
 } from "../services/projectService";
 import { Trash2, PencilIcon, PlusIcon } from "lucide-react";
 
+
 export default function Projects() {
   const { user } = useUser();
   const navigate = useNavigate();
@@ -77,6 +78,7 @@ export default function Projects() {
   };
 
   return (
+    <>
     <div className="bg-slate-300 min-h-screen">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-6">
@@ -198,5 +200,6 @@ export default function Projects() {
         )}
       </div>
     </div>
+    </>
   );
 }
