@@ -72,6 +72,36 @@ export function validateFlow(nodes, edges) {
       );
     }
 
+    // --- Required content validation ---
+    // Helper: required fields for each node type
+    const requiredFieldsMap = {
+      start: [],
+      message: ["message"],
+      buttons: ["message", "buttons"],
+      keywordMatch: ["keywords"],
+      apiCall: ["requestName", "url"],
+      askaQuestion: ["question", "propertyName"],
+      end: [],
+    };
+    const nodeType = node.type;
+    const requiredFields = requiredFieldsMap[nodeType] || [];
+    const properties = node.data?.properties || {};
+    requiredFields.forEach((field) => {
+      const value = properties[field];
+      if (
+        value === undefined ||
+        value === null ||
+        (typeof value === "string" && value.trim() === "") ||
+        (Array.isArray(value) && value.length === 0) ||
+        (Array.isArray(value) && value.every((item) => !item || (typeof item === "string" && item.trim() === "")))
+      ) {
+        errors.push(
+          `Error: Node "${node.data.label || node.id}" is missing required content: ${field}`
+        );
+      }
+    });
+    // --- End required content validation ---
+
     // Node-specific validation
     switch (node.type) {
       case "condition": {
