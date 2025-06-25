@@ -15,9 +15,6 @@ export function ButtonsFields({ formData, onChange, errors }) {
         required={true}
       />
       <div className="mb-4">
-        <label className="text-sm font-medium block mb-2">
-          Button Options <span className="text-red-500 ml-1">*</span>
-        </label>
         <ArrayInput
           label="Button Options"
           items={formData.buttons || []}

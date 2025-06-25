@@ -6,9 +6,6 @@ export function KeywordMatchFields({ formData, onChange, errors }) {
   return (
     <>
       <div className="mb-4">
-        <label className="text-sm font-medium block mb-2">
-          Keywords to Match <span className="text-red-500 ml-1">*</span>
-        </label>
         <ArrayInput
           label="Keywords to Match"
           items={formData.keywords || []}
