@@ -3,11 +3,17 @@ import projectModel from "../models/project.model.js";
 
 // Helper function to get project credentials securely
 async function getProjectCredentials(projectId) {
-  const project = await projectModel.findById(projectId).select(
-    "whatsappPhoneNumberId whatsappAccessToken"
-  );
-  if (!project || !project.whatsappPhoneNumberId || !project.whatsappAccessToken) {
-    throw new Error(`WhatsApp credentials not configured for project ${projectId}`);
+  const project = await projectModel
+    .findById(projectId)
+    .select("whatsappPhoneNumberId whatsappAccessToken");
+  if (
+    !project ||
+    !project.whatsappPhoneNumberId ||
+    !project.whatsappAccessToken
+  ) {
+    throw new Error(
+      `WhatsApp credentials not configured for project ${projectId}`
+    );
   }
   return {
     phoneNumberId: project.whatsappPhoneNumberId,
@@ -15,19 +21,9 @@ async function getProjectCredentials(projectId) {
   };
 }
 
-/**
- * Send a WhatsApp message.
- * Automatically supports text OR button-based messages.
- *
- * @param {Object} params
- * @param {string} params.to - Receiver WhatsApp number in international format
- * @param {string} params.text - The main message body
- * @param {string} params.projectId - Project ID to fetch credentials
- * @param {string[] | Object[]} [params.buttons] - Optional array of button labels (max 3) or formatted button objects
- */
-export async function sendWhatsappMessage({ to, text, projectId, buttons = [] }) {
+export async function sendWhatsappMessage({to, text, projectId, buttons = []}) {
   try {
-    const { phoneNumberId, accessToken } = await getProjectCredentials(projectId);
+    const {phoneNumberId, accessToken} = await getProjectCredentials(projectId);
 
     const url = `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`;
 
@@ -40,7 +36,9 @@ export async function sendWhatsappMessage({ to, text, projectId, buttons = [] })
           ? buttons.slice(0, 3).map((label, index) => ({
               type: "reply",
               reply: {
-                id: `btn_${index + 1}_${label.toLowerCase().replace(/\s+/g, "_")}`,
+                id: `btn_${index + 1}_${label
+                  .toLowerCase()
+                  .replace(/\s+/g, "_")}`,
                 title: label,
               },
             }))
@@ -66,7 +64,7 @@ export async function sendWhatsappMessage({ to, text, projectId, buttons = [] })
         messaging_product: "whatsapp",
         to,
         type: "text",
-        text: { body: text },
+        text: {body: text},
       };
     }
 
