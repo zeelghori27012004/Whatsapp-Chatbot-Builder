@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
 import { UserContext } from "../context/user.context";
+import Footer from "../components/Footer";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -63,6 +64,7 @@ export default function Register() {
   }, [navigate, user]);
 
   return (
+    <>
     <div className="min-h-screen max-w-screen flex items-center justify-center bg-gray-200 overflow-x-hidden">
       <form
         onSubmit={handleSubmit}
@@ -152,5 +154,7 @@ export default function Register() {
         </p>
       </form>
     </div>
+    <Footer />
+    </>
   );
 }

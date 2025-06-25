@@ -8,8 +8,17 @@ import Register from "./pages/register";
 import Projects from "./pages/Projects";
 import PrivateRoute from "./components/Protectedroute";
 
-// import FlowCanvas from "./components/Flowcanvas";
 import FlowBuilder from "./components/FlowBuilder/Flowbuilder";
+
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Services from "./pages/Services";
+import Work from "./pages/Work";
+import Team from "./pages/Team";
+import About from "./pages/About";
+import HowToUse from "./pages/HowToUse";
+import FAQs from "./pages/FAQs";
+import Support from "./pages/Support";
+import Footer from "./components/Footer";
 
 const router = createBrowserRouter([
   {
@@ -18,13 +27,19 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Login />,
+        element: (
+          <PrivateRoute>
+            <Login />
+            <Footer />
+          </PrivateRoute>
+        ),
       },
       {
         path: "dashboard",
         element: (
           <PrivateRoute>
             <Dashboard />
+            <Footer />
           </PrivateRoute>
         ),
       },
@@ -33,7 +48,80 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <Projects />
+            <Footer />
           </PrivateRoute>
+        ),
+      },
+      {
+        path: "privacy-policy",
+        element: (
+          <>
+            <PrivacyPolicy />
+            <Footer />
+          </>
+        ),
+      },
+      {
+        path: "services",
+        element: (
+          <>
+            <Services />
+            <Footer />
+          </>
+        ),
+      },
+      {
+        path: "work",
+        element: (
+          <>
+            <Work />
+            <Footer />
+          </>
+        ),
+      },
+      {
+        path: "team",
+        element: (
+          <>
+            <Team />
+            <Footer />
+          </>
+        ),
+      },
+      {
+        path: "about",
+        element: (
+          <>
+            <About />
+            <Footer />
+          </>
+        ),
+      },
+      {
+        path: "how-to-use",
+        element: (
+          <>
+            <HowToUse />
+            <Footer />
+          </>
+        ),
+      },
+      {
+        path: "faqs",
+        element: (
+          <>
+            <FAQs />
+            <Footer />
+          </>
+        ),
+      },
+      {
+        path: "support",
+        element: (
+          <>
+            <Support />
+            <Footer />
+          </>
         ),
       },
     ],
